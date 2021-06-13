@@ -2,7 +2,7 @@
 - 👀 I’m interested in Python
 - 🌱 I’m currently learning how to create a bot on Discord
 - 💞️ I’m looking to collaborate on Python coding
-- 📫 How to reach me dantutu on Insta
+- 📫 How to reach me: dantutu on Insta
 
 <!---
 dantutu1993/dantutu1993 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
