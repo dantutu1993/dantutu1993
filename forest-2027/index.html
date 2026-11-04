@@ -374,6 +374,7 @@ h2.title{font-size:24px;margin-bottom:4px}
   <button class="x" onclick="closeModal('mShare')">×</button>
   <h2 class="title">📤 分享給朋友</h2>
   <img class="share-img" id="shareImg" alt="分享圖卡">
+  <p class="hint" style="margin:-4px 0 12px">📱 手機可長按圖片儲存</p>
   <div class="ev-btns">
     <button class="btn" id="nativeShare" onclick="nativeShare()">分享…</button>
     <button class="btn ghost" onclick="downloadCard()">⬇️ 下載圖卡</button>
@@ -1192,7 +1193,7 @@ function downloadCard(){ track('share_download'); const a=document.createElement
 function copyLink(){
   track('share_link');
   const u = shareURL();
-  (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast('🔗 挑戰連結已複製，貼給朋友吧！')).catch(()=>prompt('複製這個連結：',u));
+  (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast('🔗 挑戰連結已複製，貼給朋友吧！')).catch(()=>toast('請手動複製連結：<br><span style="user-select:all;font-size:12px">'+u+'</span>',6000));
 }
 
 renderGoals();
