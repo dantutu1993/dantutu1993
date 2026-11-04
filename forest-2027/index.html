@@ -1,0 +1,1151 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<title>守住你的 2027｜Forest</title>
+<meta name="description" content="一週時間攻防戰：選一個 2027 目標、排進行事曆，看看手機、訊息、熬夜會偷走你多少時間。">
+<meta property="og:title" content="你守得住你的 2027 嗎？｜Forest 時間攻防戰">
+<meta property="og:description" content="選一個 2027 目標，排進一週行事曆，抵抗分心突發事件，守住你的專注時數。">
+<meta name="theme-color" content="#2e9d5b">
+<style>
+:root{
+  --bg:#f3f7f1; --card:#ffffff; --ink:#1d2b22; --muted:#6b7a70; --line:#e2e9e0;
+  --green:#2e9d5b; --green-d:#1d6b3e; --green-l:#e3f4e8; --mint:#c8ecd4;
+  --red:#e5484d; --red-l:#ffe5e5; --orange:#ff8a3d; --gold:#f5b301; --blue:#3b82f6;
+  --hh:30px; --radius:14px;
+  --k-sleep:#d7def0; --k-meal:#ffe6c2; --k-work:#e1e5ea; --k-life:#f3e7d9; --k-nap:#e9e0f7;
+  --k-free:#eef8ef; --k-mine:#cdeaf7; --k-imported:#ead9f7; --k-goal:#2e9d5b;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;font-size:15px;line-height:1.5;overflow:hidden}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+input,select{font:inherit}
+.screen{display:none;height:100dvh;height:100vh;height:100dvh;overflow:auto}
+.screen.active{display:flex;flex-direction:column}
+.wrap{width:100%;max-width:760px;margin:0 auto;padding:24px 16px 40px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 22px;border-radius:999px;font-weight:700;background:var(--green);color:#fff;box-shadow:0 4px 0 var(--green-d);transition:transform .08s,box-shadow .08s,opacity .2s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--green-d)}
+.btn[disabled]{opacity:.4;pointer-events:none}
+.btn.ghost{background:#fff;color:var(--green-d);box-shadow:0 3px 0 var(--line);border:1.5px solid var(--line)}
+.btn.sm{padding:7px 14px;font-size:13px;box-shadow:0 3px 0 var(--green-d)}
+.btn.ghost.sm{box-shadow:0 2px 0 var(--line)}
+.btn.gold{background:var(--gold);color:#3b2c00;box-shadow:0 4px 0 #b88600}
+.btn.big{padding:16px 34px;font-size:18px}
+.muted{color:var(--muted)}
+.center{text-align:center}
+
+/* ---------- Intro ---------- */
+#scr-intro{background:linear-gradient(180deg,#dff3e5 0%,#f3f7f1 60%)}
+.hero{text-align:center;padding-top:6vh}
+.hero .tree{font-size:72px;animation:sway 3s ease-in-out infinite;display:inline-block;transform-origin:bottom center}
+@keyframes sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+.hero h1{font-size:34px;line-height:1.25;margin:10px 0 8px;letter-spacing:.5px}
+.hero h1 b{color:var(--green)}
+.hero p.lead{color:var(--muted);max-width:460px;margin:0 auto 22px}
+.howto{display:grid;gap:10px;max-width:460px;margin:22px auto;text-align:left}
+.howto div{background:#fff;border-radius:var(--radius);padding:12px 14px;display:flex;gap:12px;align-items:center;box-shadow:0 1px 0 var(--line)}
+.howto .n{flex:none;width:28px;height:28px;border-radius:50%;background:var(--green-l);color:var(--green-d);font-weight:800;display:grid;place-items:center}
+.invite{background:#fff7d6;border:1.5px dashed var(--gold);border-radius:var(--radius);padding:10px 14px;max-width:460px;margin:0 auto 14px;display:none}
+.brand{font-size:12px;color:var(--muted);margin-top:18px}
+
+/* ---------- Goal ---------- */
+h2.title{font-size:24px;margin-bottom:4px}
+.goals{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin:18px 0}
+.goal{background:#fff;border-radius:var(--radius);padding:16px;text-align:left;border:2px solid transparent;box-shadow:0 2px 0 var(--line);transition:transform .15s,border-color .15s}
+.goal:hover{transform:translateY(-2px)}
+.goal.sel{border-color:var(--green);background:var(--green-l)}
+.goal .gi{font-size:30px}
+.goal .gn{font-weight:800;margin:4px 0 2px}
+.goal .gh{font-size:13px;color:var(--muted)}
+.custom-box{display:none;background:#fff;border-radius:var(--radius);padding:14px;margin-bottom:16px;gap:10px;flex-direction:column}
+.custom-box.show{display:flex}
+.custom-box input[type=text]{border:1.5px solid var(--line);border-radius:10px;padding:10px 12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+/* ---------- Plan (breakdown) ---------- */
+.ladder{position:relative;margin:20px 0 10px;padding-left:26px}
+.ladder:before{content:"";position:absolute;left:10px;top:8px;bottom:8px;width:3px;background:var(--mint);border-radius:3px}
+.step{position:relative;background:#fff;border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;box-shadow:0 2px 0 var(--line);opacity:0;transform:translateY(10px);animation:rise .5s forwards}
+.step:before{content:"";position:absolute;left:-22px;top:18px;width:13px;height:13px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px var(--bg)}
+.step .lbl{font-size:12px;font-weight:700;color:var(--green);letter-spacing:1px}
+.step .big{font-size:20px;font-weight:800}
+.ms{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:8px}
+.ms div{background:var(--green-l);border-radius:10px;padding:8px 10px;font-size:13px}
+.tasks{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--green);color:#fff;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600}
+.gift{background:#fff7d6;border:1.5px solid #f3d36b}
+@keyframes rise{to{opacity:1;transform:none}}
+
+/* ---------- Calendar screen ---------- */
+#scr-cal{overflow:hidden}
+.topbar{flex:none;background:#fff;border-bottom:1px solid var(--line);padding:10px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.topbar .goalname{font-weight:800;display:flex;align-items:center;gap:6px;min-width:0}
+.topbar .goalname span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pbar{flex:1;min-width:140px;height:12px;background:#edf1ec;border-radius:999px;position:relative;overflow:hidden}
+.pbar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#58c483,var(--green));border-radius:999px;transition:width .3s}
+.ptxt{font-size:13px;font-weight:700;white-space:nowrap}
+.pill{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border-radius:999px;padding:4px 10px;font-weight:700;font-size:14px;white-space:nowrap}
+.coins.bump{animation:bump .4s}
+@keyframes bump{50%{transform:scale(1.25)}}
+.prots{display:flex;gap:4px}
+.prots span{font-size:16px;background:var(--green-l);border-radius:8px;padding:1px 5px}
+.spd button{padding:4px 9px;border-radius:8px;font-weight:700;font-size:13px;background:var(--bg)}
+.spd button.on{background:var(--ink);color:#fff}
+.setupbar{flex:none;background:#fff;border-bottom:1px solid var(--line);padding:8px 14px}
+.checks{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin-bottom:8px;align-items:center}
+.checks .ok{color:var(--green-d);font-weight:700}
+.checks .no{color:var(--red);font-weight:700}
+.tools{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.brushes{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.brush{flex:none;display:flex;align-items:center;gap:5px;padding:6px 11px;border-radius:999px;font-size:13px;font-weight:600;border:2px solid transparent;background:var(--bg)}
+.brush.goalb{background:var(--green-l);color:var(--green-d)}
+.brush.on{border-color:var(--ink);background:#fff}
+.brush small{opacity:.6;font-weight:500}
+
+.game-body{flex:1;min-height:0;display:flex}
+.cal{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;background:#fff;position:relative}
+.cal-head{flex:none;display:grid;grid-template-columns:38px repeat(7,1fr);border-bottom:1px solid var(--line);background:#fff;z-index:3}
+.dh{text-align:center;padding:6px 0 4px;font-weight:800;font-size:14px;position:relative}
+.dh small{display:block;font-weight:500;font-size:11px;color:var(--muted)}
+.dh.today{color:var(--green)}
+.dh.today:after{content:"";position:absolute;left:25%;right:25%;bottom:0;height:3px;border-radius:3px;background:var(--green)}
+.dh .tired{position:absolute;top:2px;right:2px;font-size:11px}
+.cal-scroll{flex:1;overflow-y:auto;overflow-x:hidden;position:relative;overscroll-behavior:contain}
+.cal-grid{display:grid;grid-template-columns:38px repeat(7,1fr);position:relative}
+.tcol{position:relative}
+.tcol div{position:absolute;right:4px;font-size:10px;color:var(--muted);transform:translateY(-6px)}
+.dcol{position:relative;border-left:1px solid var(--line);background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--hh) - 1px),#f0f3ef calc(var(--hh) - 1px),#f0f3ef var(--hh))}
+.dcol.empty-slot-hint{cursor:crosshair}
+.blk{position:absolute;left:1px;right:1px;border-radius:5px;overflow:hidden;font-size:10.5px;line-height:1.2;padding:1px 3px;display:flex;gap:2px;align-items:flex-start;color:#33403a;border:1px solid rgba(0,0,0,.05);transition:filter .3s,opacity .3s}
+.blk .ic{flex:none}
+.blk .tt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.blk.tall .tt{white-space:normal}
+.k-sleep{background:var(--k-sleep)} .k-meal{background:var(--k-meal)} .k-work{background:var(--k-work)} .k-life{background:var(--k-life)} .k-nap{background:var(--k-nap)}
+.k-free{background:var(--k-free);color:#5d7a64;border:1px dashed #b9dcc2}
+.k-mine{background:var(--k-mine)} .k-imported{background:var(--k-imported)}
+.k-goal{background:var(--k-goal);color:#fff;font-weight:700;box-shadow:inset 3px 0 0 #1a5c35}
+.blk.hit{filter:grayscale(1);opacity:.45}
+.blk.hit .tt{text-decoration:line-through}
+.blk.done-tree:after{content:"🌳";position:absolute;right:2px;bottom:0;font-size:12px}
+.blk.done-sprout:after{content:"🌱";position:absolute;right:2px;bottom:0;font-size:12px}
+.blk.done-dead:after{content:"🥀";position:absolute;right:2px;bottom:0;font-size:12px}
+.empty{position:absolute;left:2px;right:2px;border-radius:5px;background:repeating-linear-gradient(45deg,#fff4f4,#fff4f4 4px,#ffe1e1 4px,#ffe1e1 8px);border:1px dashed #f3a5a5}
+.ov{position:absolute;left:-3px;right:-3px;z-index:4;border-radius:7px;background:repeating-linear-gradient(-45deg,#ff5a5f,#ff5a5f 7px,#ff7b6b 7px,#ff7b6b 14px);color:#fff;font-weight:800;font-size:11px;padding:2px 4px;line-height:1.15;box-shadow:0 4px 14px rgba(229,72,77,.45);border:2px solid #fff;overflow:hidden}
+.ov.night{background:repeating-linear-gradient(-45deg,#4b3f8f,#4b3f8f 7px,#5d51a8 7px,#5d51a8 14px);box-shadow:0 4px 14px rgba(75,63,143,.5)}
+.ov.work{background:repeating-linear-gradient(-45deg,#6b7280,#6b7280 7px,#7c8592 7px,#7c8592 14px)}
+.ov .oi{font-size:15px;display:block}
+.ov.slam{animation:slam .55s cubic-bezier(.2,1.6,.4,1)}
+@keyframes slam{0%{transform:scale(1.9) rotate(-10deg);opacity:0}60%{opacity:1}100%{transform:none}}
+.shake{animation:shake .45s}
+@keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.past{position:absolute;left:0;right:0;top:0;background:rgba(240,243,239,.55);z-index:2;pointer-events:none}
+.nowline{position:absolute;left:-4px;right:0;height:2px;background:var(--red);z-index:6;pointer-events:none;display:none}
+.nowline:before{content:"";position:absolute;left:-2px;top:-5px;width:12px;height:12px;border-radius:50%;background:var(--red)}
+.nowline b{position:absolute;right:2px;top:-17px;font-size:10px;background:var(--red);color:#fff;border-radius:4px;padding:0 4px}
+.fx{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);z-index:20;pointer-events:none;padding:14px 22px;border-radius:18px;font-weight:900;font-size:20px;text-align:center;white-space:nowrap;box-shadow:0 10px 30px rgba(0,0,0,.2);animation:fxpop 1.6s forwards}
+.fx.bad{background:var(--red);color:#fff}
+.fx.good{background:var(--green);color:#fff}
+.fx.shield{background:#fff;color:var(--blue);border:3px solid var(--blue)}
+.fx small{display:block;font-size:13px;font-weight:700;opacity:.9}
+@keyframes fxpop{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}25%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-90%)}}
+
+.logp{width:330px;flex:none;border-left:1px solid var(--line);display:flex;flex-direction:column;background:#fbfdfb}
+.logp h3{font-size:14px;padding:10px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.log{flex:1;overflow-y:auto;padding:8px 10px;font-size:13px}
+.le{display:flex;gap:8px;padding:6px 8px;border-radius:9px;margin-bottom:4px;animation:rise .3s forwards;opacity:0;transform:translateY(6px)}
+.le .lt{flex:none;font-size:11px;color:var(--muted);width:62px;padding-top:1px}
+.le.bad{background:var(--red-l)}
+.le.good{background:var(--green-l)}
+.le.shield{background:#e7f0ff}
+.le.sys{color:var(--muted)}
+.le b{font-weight:800}
+.setup-only{} .play-only{display:none}
+#scr-cal.playing .setup-only{display:none}
+#scr-cal.playing .play-only{display:flex}
+#scr-cal:not(.playing) .logp{display:none}
+
+/* ---------- Modals ---------- */
+.modal{position:fixed;inset:0;background:rgba(20,30,24,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
+.modal.show{display:flex}
+.mcard{background:#fff;border-radius:22px;max-width:420px;width:100%;padding:22px;position:relative;animation:pop .35s cubic-bezier(.2,1.5,.4,1);max-height:92dvh;overflow:auto}
+@keyframes pop{from{transform:scale(.7);opacity:0}}
+.mcard .x{position:absolute;right:12px;top:10px;font-size:22px;color:var(--muted)}
+.ev-ic{font-size:56px;text-align:center;animation:wobble 1s infinite}
+@keyframes wobble{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+.ev-t{font-size:20px;font-weight:900;text-align:center;margin:6px 0 4px}
+.ev-d{text-align:center;color:var(--muted);margin-bottom:6px}
+.ev-tag{display:block;width:max-content;margin:0 auto 14px;background:var(--red-l);color:var(--red);font-weight:800;font-size:13px;padding:3px 10px;border-radius:999px}
+.ev-btns{display:grid;gap:10px}
+.ev-btns .btn{width:100%}
+.btn.danger{background:#fff;color:var(--red);border:1.5px solid #f6c3c4;box-shadow:0 3px 0 #f6c3c4}
+.timer{height:5px;background:#eee;border-radius:5px;overflow:hidden;margin-top:14px}
+.timer i{display:block;height:100%;background:var(--red);width:100%}
+.hint{font-size:12px;color:var(--muted);text-align:center;margin-top:8px}
+.shop-item{display:flex;gap:12px;align-items:center;padding:12px;border-radius:14px;background:var(--bg);margin-bottom:10px}
+.shop-item .si{font-size:30px;flex:none}
+.shop-item .sd{flex:1;min-width:0}
+.shop-item .sd b{display:block}
+.shop-item .sd small{color:var(--muted);font-size:12px;display:block;line-height:1.35}
+.shop-item .sd .forest{color:var(--green-d);font-weight:700}
+.owned{font-size:13px;color:var(--green-d);font-weight:800;white-space:nowrap}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;font-size:13px;font-weight:600}
+.field input,.field select{border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;font-weight:400}
+
+/* ---------- Result ---------- */
+#scr-result{background:linear-gradient(180deg,#dff3e5 0%,#f3f7f1 50%)}
+.res-h{text-align:center;padding-top:20px}
+.res-h .em{font-size:64px}
+.res-h h2{font-size:26px;margin:6px 0}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.stat{background:#fff;border-radius:var(--radius);padding:12px;text-align:center;box-shadow:0 2px 0 var(--line)}
+.stat b{display:block;font-size:22px}
+.stat small{color:var(--muted);font-size:12px}
+.card{background:#fff;border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:0 2px 0 var(--line)}
+.card h3{font-size:16px;margin-bottom:8px}
+.forest-grid{font-size:28px;line-height:1.25;letter-spacing:2px;text-align:center;padding:8px;background:linear-gradient(180deg,#f5fbf6,#e2f2e6);border-radius:12px;min-height:56px}
+.thief{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13px}
+.thief .bar{flex:1;height:10px;background:#f2f2f2;border-radius:6px;overflow:hidden}
+.thief .bar i{display:block;height:100%;background:var(--red);border-radius:6px}
+.thief .nm{width:96px;flex:none}
+.thief .v{width:56px;text-align:right;flex:none;font-weight:700}
+.tip{background:var(--green-l);border-radius:12px;padding:12px 14px;margin-top:8px;font-size:14px}
+.cta{display:grid;gap:10px;margin-top:16px}
+.cta .btn{width:100%}
+.share-img{width:100%;border-radius:14px;margin:6px 0 12px;box-shadow:0 4px 20px rgba(0,0,0,.12)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:600;z-index:200;transition:transform .3s;max-width:90vw;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+@media (max-width:860px){
+  :root{--hh:26px}
+  .game-body{flex-direction:column}
+  .logp{width:auto;height:30%;min-height:150px;border-left:0;border-top:1px solid var(--line)}
+  .cal-head,.cal-grid{grid-template-columns:30px repeat(7,1fr)}
+  .blk{font-size:9.5px;padding:0 2px}
+  .blk .ic{display:none}
+  .blk.tall .ic{display:inline}
+  .ov{font-size:9.5px}
+  .ov .oi{font-size:13px}
+  .topbar{padding:8px 10px;gap:8px}
+  .pbar{order:9;flex-basis:100%}
+  .hero h1{font-size:28px}
+  .tools{flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px}
+  .tools .btn{flex:none}
+  .checks{gap:8px;font-size:12px;margin-bottom:6px}
+  .checks .muted{display:none}
+  .statgrid .stat b{font-size:18px}
+  .fx{font-size:16px;padding:10px 16px;white-space:normal;width:80%}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ============ INTRO ============ -->
+<section class="screen active" id="scr-intro">
+  <div class="wrap">
+    <div class="hero">
+      <div class="tree">🌳</div>
+      <h1>你的 <b>2027</b>，<br>守得住嗎？</h1>
+      <p class="lead">一週時間攻防戰。選一個 2027 目標，排進行事曆，看看手機、訊息、熬夜會偷走你多少時間，然後把時間搶回來。</p>
+      <div class="invite" id="invite"></div>
+      <button class="btn big" onclick="go('goal')">開始挑戰 →</button>
+      <div class="howto">
+        <div><span class="n">1</span><span>選一個 <b>2027 目標</b>，拆成每週可執行的小任務</span></div>
+        <div><span class="n">2</span><span>把任務<b>排進一週行事曆</b>，可匯入 Google 日曆</span></div>
+        <div><span class="n">3</span><span>時間開始跑！用 🪙 金幣和道具<b>抵抗分心突發事件</b></span></div>
+        <div><span class="n">4</span><span>週日結束前<b>達成本週目標時數</b>就贏了</span></div>
+      </div>
+      <div class="brand">Forest 專注森林 · 品牌互動體驗 Prototype</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GOAL ============ -->
+<section class="screen" id="scr-goal">
+  <div class="wrap">
+    <h2 class="title">🎯 選一個你的 2027 目標</h2>
+    <p class="muted">年度目標會被拆成「每週要投入幾小時」，這就是你這局要守住的時數。</p>
+    <div class="goals" id="goals"></div>
+    <div class="custom-box" id="customBox">
+      <b>✏️ 自訂你的 2027 目標</b>
+      <input type="text" id="cName" maxlength="20" placeholder="例如：學會彈吉他、存到第一桶金…">
+      <div class="row"><span>每週想投入</span><input type="range" id="cHours" min="3" max="10" value="5" oninput="cHv.textContent=this.value"><b><span id="cHv">5</span> 小時</b></div>
+    </div>
+    <div class="center"><button class="btn big" id="goalNext" disabled onclick="confirmGoal()">拆解這個目標 →</button></div>
+  </div>
+</section>
+
+<!-- ============ PLAN ============ -->
+<section class="screen" id="scr-plan">
+  <div class="wrap">
+    <h2 class="title">🪜 把 2027 目標切小</h2>
+    <p class="muted">大目標會讓人不知道從何開始；切到「今天就能做」的大小，專注才有方向。</p>
+    <div class="ladder" id="ladder"></div>
+    <div class="center"><button class="btn big" onclick="toSetup()">排進我的行事曆 →</button></div>
+  </div>
+</section>
+
+<!-- ============ CALENDAR (setup + play) ============ -->
+<section class="screen" id="scr-cal">
+  <div class="topbar">
+    <div class="goalname"><span id="hudGoalIc">🎯</span><span id="hudGoal">目標</span></div>
+    <div class="pbar"><i id="pbarFill" style="width:0"></i></div>
+    <span class="ptxt" id="ptxt">0 / 6 h</span>
+    <span class="pill coins" id="coins">🪙 8</span>
+    <span class="prots" id="prots"></span>
+    <span class="pill play-only" id="clock">週一 07:00</span>
+    <span class="spd play-only" id="spd">
+      <button onclick="togglePause()" id="pauseBtn">⏸</button>
+      <button data-s="1" class="on" onclick="setSpeed(1)">1x</button>
+      <button data-s="2" onclick="setSpeed(2)">2x</button>
+      <button data-s="4" onclick="setSpeed(4)">4x</button>
+    </span>
+    <button class="btn gold sm" onclick="openShop()">🛒 商店</button>
+  </div>
+  <div class="setupbar setup-only">
+    <div class="checks" id="checks"></div>
+    <div class="tools">
+      <label class="btn ghost sm" for="icsInput">📅 匯入 Google 日曆 (.ics)</label>
+      <input type="file" id="icsInput" accept=".ics,text/calendar" hidden>
+      <button class="btn ghost sm" onclick="demoImport()">👀 示範匯入</button>
+      <button class="btn ghost sm" onclick="autoPlan()">✨ 自動排目標</button>
+      <button class="btn ghost sm" onclick="fillFree()">🛋️ 剩下的填自由時間</button>
+      <button class="btn ghost sm" onclick="resetMine()">↺ 重來</button>
+      <button class="btn sm" id="startBtn" disabled onclick="startGame()">▶ 開始這一週</button>
+    </div>
+    <div class="brushes" id="brushes"></div>
+  </div>
+  <div class="game-body">
+    <div class="cal" id="cal">
+      <div class="cal-head" id="calHead"></div>
+      <div class="cal-scroll" id="calScroll"><div class="cal-grid" id="calGrid"></div></div>
+    </div>
+    <div class="logp">
+      <h3><span>📜 事件紀錄</span><span class="muted" style="font-weight:500;font-size:12px" id="logHint">時間會自動前進</span></h3>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RESULT ============ -->
+<section class="screen" id="scr-result">
+  <div class="wrap" id="resultWrap"></div>
+</section>
+</div>
+
+<!-- ============ MODALS ============ -->
+<div class="modal" id="mEvent"><div class="mcard" id="mEventCard"></div></div>
+<div class="modal" id="mShop"><div class="mcard">
+  <button class="x" onclick="closeShop()">×</button>
+  <h2 class="title">🛒 預防道具商店</h2>
+  <p class="muted" style="font-size:13px;margin-bottom:12px">事前預防，比事後抵抗便宜。道具整週有效。你有 <b id="shopCoins">🪙 0</b></p>
+  <div id="shopList"></div>
+  <button class="btn ghost" style="width:100%" onclick="closeShop()">關閉</button>
+</div></div>
+<div class="modal" id="mCustom"><div class="mcard">
+  <button class="x" onclick="closeModal('mCustom')">×</button>
+  <h2 class="title">➕ 自訂行程</h2>
+  <p class="muted" style="font-size:13px;margin-bottom:12px">建立後會變成一支筆刷，點行事曆空格就能放上去。</p>
+  <div class="field">名稱<input id="cuName" maxlength="12" placeholder="例如：健身房、家教、陪小孩"></div>
+  <div class="field">類型<select id="cuType"><option value="mine">生活 / 其他</option><option value="goal">屬於我的 2027 目標</option></select></div>
+  <div class="field">長度<select id="cuDur"><option value="30">30 分鐘</option><option value="60">1 小時</option><option value="90">1.5 小時</option><option value="120">2 小時</option></select></div>
+  <button class="btn" style="width:100%" onclick="addCustomBrush()">建立筆刷</button>
+</div></div>
+<div class="modal" id="mShare"><div class="mcard">
+  <button class="x" onclick="closeModal('mShare')">×</button>
+  <h2 class="title">📤 分享給朋友</h2>
+  <img class="share-img" id="shareImg" alt="分享圖卡">
+  <div class="ev-btns">
+    <button class="btn" id="nativeShare" onclick="nativeShare()">分享…</button>
+    <button class="btn ghost" onclick="downloadCard()">⬇️ 下載圖卡</button>
+    <button class="btn ghost" onclick="copyLink()">🔗 複製挑戰連結</button>
+  </div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   CONFIG
+   ===================================================================== */
+const LINKS = {
+  download: 'https://www.forestapp.cc/',
+  ios: 'https://apps.apple.com/app/id866450515',
+  android: 'https://play.google.com/store/apps/details?id=cc.forestapp'
+};
+const DAYS = ['一','二','三','四','五','六','日'];
+const WEEK_DATES = ['1/4','1/5','1/6','1/7','1/8','1/9','1/10']; // 2027 第一週
+const TOTAL = 336, WEEK_MIN = 10080, BASE_RATE = 40; // game-minutes per real second at 1x
+const START_MIN = 7*60; // 週一 07:00 開始
+const START_COINS = 8;
+
+const GOALS = [
+  {id:'english', icon:'🗣️', name:'英文流利到能用英文開會', short:'英文流利', weekly:6,
+   ms:['Q1 累積 1,500 個單字','Q2 聽懂 7 成 Podcast','Q3 每週一次口說課','Q4 主持一場英文會議'],
+   tasks:[{n:'背 20 個單字',d:30,i:'📖'},{n:'聽英文 Podcast',d:30,i:'🎧'},{n:'線上口說課',d:60,i:'🗣️'},{n:'影子跟讀',d:30,i:'🔁'}]},
+  {id:'fit', icon:'💪', name:'健康體態，減脂 8 公斤', short:'健康體態', weekly:5,
+   ms:['Q1 建立每週 3 練習慣','Q2 體脂 -3%','Q3 完成 10K 路跑','Q4 達標 -8kg'],
+   tasks:[{n:'重訓',d:60,i:'🏋️'},{n:'慢跑 5K',d:30,i:'🏃'},{n:'備健康餐',d:30,i:'🥗'},{n:'伸展瑜伽',d:30,i:'🧘'}]},
+  {id:'read', icon:'📚', name:'一年讀完 24 本書', short:'讀 24 本書', weekly:4,
+   ms:['Q1 讀完 6 本','Q2 建立讀書筆記系統','Q3 讀完 18 本','Q4 寫下年度書單心得'],
+   tasks:[{n:'讀 30 頁',d:30,i:'📖'},{n:'深度閱讀',d:60,i:'📚'},{n:'寫讀書筆記',d:30,i:'✍️'}]},
+  {id:'side', icon:'💻', name:'做出 Side Project 並上線', short:'Side Project', weekly:6,
+   ms:['Q1 想法驗證 + 規格','Q2 做出 MVP','Q3 找到 100 位用戶','Q4 正式上線'],
+   tasks:[{n:'寫程式',d:60,i:'💻'},{n:'學新技術',d:30,i:'🧠'},{n:'規劃功能',d:30,i:'🗂️'},{n:'發佈進度',d:30,i:'📣'}]},
+  {id:'cert', icon:'🎓', name:'考取專業證照', short:'考取證照', weekly:5,
+   ms:['Q1 讀完教材第一輪','Q2 刷完歷屆考題','Q3 模擬考 80 分','Q4 正式考試通過'],
+   tasks:[{n:'讀教材',d:60,i:'📘'},{n:'刷考古題',d:30,i:'📝'},{n:'整理錯題',d:30,i:'🗒️'}]},
+  {id:'custom', icon:'✏️', name:'自訂我的目標', short:'自訂目標', weekly:5, custom:true,
+   ms:['Q1 打好基礎','Q2 穩定練習','Q3 突破瓶頸','Q4 達成目標'],
+   tasks:[{n:'核心練習',d:60,i:'🎯'},{n:'學習新知',d:30,i:'🧠'},{n:'複習整理',d:30,i:'🗒️'}]},
+];
+
+const BASE = {
+  sleep:{k:'sleep',t:'睡覺',i:'😴',lock:1}, work:{k:'work',t:'工作',i:'💼',lock:1},
+  lunch:{k:'meal',t:'午餐',i:'🍱',lock:1}, nap:{k:'nap',t:'午休',i:'💤',lock:1},
+};
+const FREE = {k:'free',t:'自由時間',i:'🛋️'};
+
+// 道具：protects 哪些事件類別
+const ITEMS = [
+  {id:'focus', icon:'🌳', name:'Forest 專注模式', cost:7, cats:['scroll','notify','procrastinate'], goalOnly:true,
+   desc:'目標時段開始就種下一棵樹，離開去滑手機樹就會枯萎。', forest:true},
+  {id:'mute', icon:'📵', name:'關閉通知', cost:5, cats:['msg','notify'],
+   desc:'訊息、群組、推播整週靜音，不再被打斷。'},
+  {id:'night', icon:'🌙', name:'睡前手機放客廳', cost:4, cats:['night'],
+   desc:'不帶手機上床，不會滑到半夜。'},
+  {id:'shield', icon:'🛡️', name:'專注護盾 ×1', cost:3, consumable:true,
+   desc:'自動擋下下一次任何突發事件（可疊加）。'},
+];
+const GIFT = {id:'clear', icon:'🎯', name:'明確下一步', cats:['unclear']};
+
+const CAT_NAME = {scroll:'📱 滑手機', msg:'💬 訊息聊天', notify:'🔔 通知', unclear:'🌀 不知從何開始', procrastinate:'🧹 拖延', night:'🌙 熬夜晚起', work:'💼 臨時加班'};
+const TIP = {
+  scroll:'滑手機是你最大的時間小偷。下次目標時段開始時，打開 <b>Forest 種一棵樹</b>：只要離開去滑手機，樹就會枯萎。',
+  notify:'通知一跳就分心。開 <b>Forest 專注模式</b>，搭配手機勿擾，讓目標時段真正屬於你。',
+  msg:'訊息一回就是半小時。專注時先 <b>在 Forest 種一棵樹</b>，告訴朋友「種完樹再回你」。',
+  night:'睡前滑手機會連隔天一起賠掉。睡前 <b>種一棵樹</b> 放下手機，明天的你會感謝你。',
+  unclear:'目標越具體，越不會卡住。用 <b>Forest 標籤</b>記錄每段專注做了什麼，下次就知道從哪開始。',
+  procrastinate:'「準備好再開始」是陷阱。<b>先種下一棵 10 分鐘的樹</b>，開始了就停不下來。',
+  work:'臨時加班難免，把目標排在<b>早上或午休</b>前段，用 Forest 守住那段時間。',
+};
+
+const EV = {
+  goal:[
+    {cat:'msg', icon:'💬', t:'朋友傳訊息：「欸～在幹嘛」', d:'一回就停不下來，大聊天 30 分鐘', dur:30, cost:2, r:'回「晚點聊」，種一棵樹繼續專注'},
+    {cat:'msg', icon:'👥', t:'群組 99+ 則未讀', d:'忍不住從頭爬文，25 分鐘沒了', dur:25, cost:2, r:'先把群組靜音'},
+    {cat:'scroll', icon:'📱', t:'「先看一下 IG 就好」', d:'回過神來，已經滑了 45 分鐘', dur:45, cost:3, r:'把手機翻面，種一棵樹'},
+    {cat:'scroll', icon:'🎬', t:'短影音無限滑', d:'下一支、再下一支…40 分鐘消失', dur:40, cost:3, r:'放下手機，先專注 25 分鐘'},
+    {cat:'notify', icon:'🔔', t:'推播：「限時 3 小時優惠！」', d:'點進去逛了 20 分鐘購物網站', dur:20, cost:2, r:'滑掉通知，繼續做事'},
+    {cat:'unclear', icon:'🌀', t:'想專注，但不知道從哪開始', d:'打開筆記又關掉，白白浪費 20 分鐘', dur:20, cost:2, r:'先寫下第一個小步驟'},
+    {cat:'procrastinate', icon:'🧹', t:'「先整理一下桌面再開始」', d:'整理桌面、倒水、換音樂…25 分鐘過去', dur:25, cost:2, r:'不完美也先開始'},
+  ],
+  goalMid:[
+    {cat:'notify', icon:'🔔', t:'Email 通知跳出來', d:'看完信順手回了幾封，15 分鐘', dur:15, cost:1, r:'晚點統一回信'},
+    {cat:'msg', icon:'💼', t:'同事敲你：「有空嗎？」', d:'「有空嗎」通常不是一分鐘的事，20 分鐘', dur:20, cost:2, r:'回「30 分鐘後找你」'},
+    {cat:'scroll', icon:'▶️', t:'查個資料，點進 YouTube 推薦', d:'從教學影片一路看到貓咪影片，30 分鐘', dur:30, cost:2, r:'關掉分頁，回到正事'},
+  ],
+  free:[
+    {cat:'scroll', icon:'🛋️', t:'躺在沙發滑手機', d:'一滑就停不下來，90 分鐘…可能吃掉後面的行程', dur:90, cost:3, r:'設定 20 分鐘就起身'},
+    {cat:'msg', icon:'📞', t:'朋友打來大聊天', d:'一聊就 60 分鐘', dur:60, cost:2, r:'約好下次見面再聊'},
+  ],
+  night:[
+    {cat:'night', icon:'🌙', t:'睡前「再滑一下就好」', d:'滑到凌晨 2 點…明天會晚起又沒精神', dur:150, cost:3, r:'手機放遠，準時睡覺'},
+    {cat:'night', icon:'📺', t:'追劇「再一集就睡」', d:'一集接一集看到 2:30，明天會很慘', dur:180, cost:3, r:'關掉自動播放，去睡覺'},
+  ],
+  work:[
+    {cat:'work', icon:'🔥', t:'主管 17:00 丟來急件', d:'加班到 20:30，晚上的計畫可能泡湯', dur:150, cost:4, at:1080, r:'溝通優先順序，明早再處理'},
+  ],
+};
+const GOOD = [
+  {icon:'👯', t:'朋友邀你一起在 Forest 種樹', d:'一起專注！下一個目標時段不會被打擾', coins:2, buff:'friend'},
+  {icon:'🚶', t:'飯後散步 15 分鐘', d:'腦袋清醒多了', coins:1},
+  {icon:'💡', t:'讀到一句話：「現在就是最好的時機」', d:'想起自己為什麼要開始', coins:1},
+  {icon:'💌', t:'朋友傳來一句「加油！」', d:'被鼓勵的感覺真好', coins:2},
+];
+
+/* =====================================================================
+   STATE
+   ===================================================================== */
+let goal = null, slots = [], brushes = [], brush = null, uid = 1;
+let G = null;
+const $ = s => document.querySelector(s);
+const rnd = a => a[Math.floor(Math.random()*a.length)];
+const pad = n => String(n).padStart(2,'0');
+const fmtT = m => `週${DAYS[Math.floor(m/1440)%7]} ${pad(Math.floor(m%1440/60))}:${pad(m%60)}`;
+const hrs = m => (Math.round(m/6)/10).toString().replace(/\.0$/,'');
+const key = s => s ? s.k+'|'+s.t+'|'+(s.g||'') : '∅';
+const targetMin = () => goal.weekly*60;
+
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $('#scr-'+id).classList.add('active');
+}
+function toast(msg,ms=2200){const t=$('#toast');t.innerHTML=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),ms);}
+function closeModal(id){$('#'+id).classList.remove('show');}
+
+/* ---------- invite (from share link) ---------- */
+(function(){
+  const p = new URLSearchParams(location.search);
+  if(p.get('from')==='share'){
+    const g = GOALS.find(x=>x.id===p.get('g'));
+    const h = p.get('h'), t = p.get('t');
+    const el = $('#invite'); el.style.display='block';
+    el.innerHTML = `🌱 你的朋友在「${g?g.icon+' '+g.short:'2027 目標'}」守住了 <b>${h||'?'} / ${t||'?'} 小時</b>。<br>換你來挑戰，看看你的一週會被偷走多少時間！`;
+  }
+})();
+
+/* =====================================================================
+   GOAL SELECT + BREAKDOWN
+   ===================================================================== */
+function renderGoals(){
+  $('#goals').innerHTML = GOALS.map(g=>`
+    <button class="goal" data-id="${g.id}" onclick="pickGoal('${g.id}')">
+      <div class="gi">${g.icon}</div><div class="gn">${g.name}</div>
+      <div class="gh">${g.custom?'自己定義目標與時數':`每週 ${g.weekly} 小時 · 2027 全年 ${g.weekly*52} 小時`}</div>
+    </button>`).join('');
+}
+function pickGoal(id){
+  document.querySelectorAll('.goal').forEach(b=>b.classList.toggle('sel',b.dataset.id===id));
+  goal = JSON.parse(JSON.stringify(GOALS.find(g=>g.id===id)));
+  $('#customBox').classList.toggle('show', !!goal.custom);
+  $('#goalNext').disabled = false;
+}
+function confirmGoal(){
+  if(goal.custom){
+    const n = $('#cName').value.trim();
+    if(!n){toast('幫你的目標取個名字吧');$('#cName').focus();return;}
+    goal.name = n; goal.short = n.slice(0,8); goal.weekly = +$('#cHours').value;
+  }
+  const L = $('#ladder');
+  L.innerHTML = `
+   <div class="step" style="animation-delay:.05s"><div class="lbl">2027 年度目標</div><div class="big">${goal.icon} ${goal.name}</div><div class="muted">全年投入約 ${goal.weekly*52} 小時</div></div>
+   <div class="step" style="animation-delay:.35s"><div class="lbl">拆成每季里程碑</div><div class="ms">${goal.ms.map(m=>`<div>${m}</div>`).join('')}</div></div>
+   <div class="step" style="animation-delay:.65s"><div class="lbl">再切成每週節奏</div><div class="big">每週 ${goal.weekly} 小時</div><div class="muted">一天不到 ${Math.ceil(goal.weekly*60/7)} 分鐘。這就是本局要守住的時數。</div></div>
+   <div class="step" style="animation-delay:.95s"><div class="lbl">最後變成今天就能做的任務</div><div class="tasks">${goal.tasks.map(t=>`<span class="chip">${t.i} ${t.n} · ${t.d}分</span>`).join('')}</div></div>
+   <div class="step gift" style="animation-delay:1.3s"><div class="lbl" style="color:#a07800">🎁 獲得道具</div><b>🎯 明確下一步（整週有效）</b><div class="muted" style="font-size:13px">因為目標已經拆得夠具體，「想專注卻不知道從何開始」這類突發事件會被自動擋下。</div></div>`;
+  go('plan');
+}
+
+/* =====================================================================
+   CALENDAR SETUP
+   ===================================================================== */
+function defaultSlots(){
+  const s = new Array(TOTAL).fill(null);
+  const put = (d,from,to,o)=>{for(let m=from;m<to;m+=30) s[d*48+m/30]={...o};};
+  for(let d=0; d<7; d++){
+    const we = d>=5;
+    put(d,0,we?510:450,BASE.sleep);
+    if(!we){
+      put(d,450,540,{k:'life',t:'早餐・通勤',i:'🥪',lock:1});
+      put(d,540,720,BASE.work); put(d,720,750,BASE.lunch); put(d,750,780,BASE.nap);
+      put(d,780,1080,BASE.work);
+      put(d,1080,1170,{k:'life',t:'通勤・晚餐',i:'🍜',lock:1});
+    } else {
+      put(d,510,570,{k:'meal',t:'早午餐',i:'🥞',lock:1});
+      put(d,720,780,{k:'meal',t:'午餐',i:'🍝',lock:1});
+      put(d,780,810,BASE.nap);
+      put(d,1080,1140,{k:'meal',t:'晚餐',i:'🍲',lock:1});
+    }
+    put(d,1410,1440,BASE.sleep);
+  }
+  return s;
+}
+function toSetup(){
+  slots = defaultSlots();
+  brushes = goal.tasks.map(t=>({k:'goal',t:t.n,i:t.i,d:t.d}))
+    .concat([{k:'free',t:'自由時間',i:'🛋️',d:30},{k:'mine',t:'運動',i:'🏃',d:60},{k:'mine',t:'家人朋友',i:'👨‍👩‍👧',d:60},{k:'mine',t:'休息耍廢',i:'🎮',d:30},{add:1,t:'自訂…',i:'➕'},{erase:1,t:'橡皮擦',i:'🧽'}]);
+  brush = brushes[0];
+  G = newGame();
+  $('#scr-cal').classList.remove('playing');
+  buildCal(); renderBrushes(); renderCal(); updateSetup(); updateHUD();
+  go('cal');
+  setTimeout(()=>{ $('#calScroll').scrollTop = 18*parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hh')); },30);
+  setTimeout(()=>toast('點選上方筆刷，再點行事曆的 <b>紅色空格</b> 把時間排滿 👆',3500),400);
+}
+function renderBrushes(){
+  $('#brushes').innerHTML = brushes.map((b,i)=>`<button class="brush ${b.k==='goal'?'goalb':''} ${b===brush?'on':''}" onclick="pickBrush(${i})">${b.i} ${b.t}${b.d?` <small>${b.d}分</small>`:''}</button>`).join('');
+}
+function pickBrush(i){
+  const b = brushes[i];
+  if(b.add){ $('#mCustom').classList.add('show'); $('#cuName').focus(); return; }
+  brush = b; renderBrushes();
+}
+function addCustomBrush(){
+  const n = $('#cuName').value.trim(); if(!n){toast('請輸入名稱');return;}
+  const k = $('#cuType').value, d = +$('#cuDur').value;
+  const b = {k, t:n, i:k==='goal'?'🎯':'📌', d};
+  brushes.splice(brushes.length-2,0,b); brush=b; renderBrushes(); closeModal('mCustom'); $('#cuName').value='';
+  toast(`已建立「${n}」筆刷，點空格放上去`);
+}
+const goalMinutes = () => slots.reduce((a,s)=>a+(s&&s.k==='goal'?30:0),0);
+const emptyCount = () => slots.filter(s=>!s).length;
+const maxGoal = () => (goal.weekly+3)*60;
+const paintable = s => !s || !s.lock;
+
+function paintAt(si){
+  if(si<0||si>=TOTAL) return;
+  if(brush.erase){
+    const s = slots[si]; if(!s||s.lock) return;
+    if(s.g){ for(let i=0;i<TOTAL;i++) if(slots[i]&&slots[i].g===s.g) slots[i]=null; } else slots[si]=null;
+    return;
+  }
+  const n = Math.max(1,(brush.d||30)/30), day = Math.floor(si/48);
+  const ids = [];
+  for(let j=0;j<n;j++){ const x=si+j; if(Math.floor(x/48)!==day||!paintable(slots[x])) break; ids.push(x); }
+  if(ids.length<n){ toast(brush.d>30?`這裡放不下 ${brush.d} 分鐘，換個位置試試`:'這個時段是固定作息，不能覆蓋'); return 'stop'; }
+  if(brush.k==='goal'){
+    const add = ids.filter(x=>!slots[x]||slots[x].k!=='goal').length*30;
+    if(goalMinutes()+add>maxGoal()){ toast(`目標時段最多排 ${goal.weekly+3} 小時，留點彈性給生活 🌿`); return 'stop'; }
+  }
+  // 清掉被覆蓋到的 group
+  ids.forEach(x=>{ const g=slots[x]&&slots[x].g; if(g) for(let i=0;i<TOTAL;i++) if(slots[i]&&slots[i].g===g) slots[i]=null; });
+  const g = brush.k==='free' ? '' : 'g'+(uid++);
+  ids.forEach(x=>slots[x]={k:brush.k,t:brush.t,i:brush.i,g});
+}
+function onCalPointer(e){
+  if(G.running||G.started) return;
+  const col = e.target.closest('.dcol'); if(!col) return;
+  const d = +col.dataset.d, r = col.getBoundingClientRect();
+  const si = d*48 + Math.floor((e.clientY-r.top)/(r.height/48));
+  if(e.type==='pointerdown'){
+    if(e.pointerType!=='mouse'){ G._tap={x:e.clientX,y:e.clientY,si}; return; } // 觸控：放開且沒滑動才算點擊，避免捲動時誤畫
+    G._paint = true; G._last = si; paintAt(si); refreshSetup();
+  }
+  else if(e.type==='pointerup'){
+    const t=G._tap; G._tap=null;
+    if(t && Math.hypot(e.clientX-t.x,e.clientY-t.y)<10){ paintAt(t.si); refreshSetup(); }
+  }
+  else if(e.type==='pointermove' && G._paint && si!==G._last && (brush.erase||brush.k==='free'||brush.k==='mine')){ G._last=si; if(paintAt(si)!=='stop') refreshSetup(); }
+}
+window.addEventListener('pointerup',()=>{ if(G) G._paint=false; });
+function refreshSetup(){ renderCal(); updateSetup(); updateHUD(); }
+function updateSetup(){
+  const gm = goalMinutes(), em = emptyCount(), ok1 = gm>=targetMin(), ok2 = em===0;
+  $('#checks').innerHTML = `
+    <span class="${ok1?'ok':'no'}">${ok1?'✅':'⬜'} 目標時段 ${hrs(gm)} / ${goal.weekly} 小時</span>
+    <span class="${ok2?'ok':'no'}">${ok2?'✅':'⬜'} 空白時段 ${em} 格（30分/格）</span>
+    <span class="muted">💡 突發事件一定會偷時間，建議多排 1–2 小時緩衝（上限 ${goal.weekly+3}h）</span>`;
+  $('#startBtn').disabled = !(ok1&&ok2);
+}
+function autoPlan(){
+  // 先清掉既有目標
+  for(let i=0;i<TOTAL;i++) if(slots[i]&&slots[i].k==='goal') slots[i]=null;
+  const prefs = [];
+  for(let d=0;d<5;d++) prefs.push(d*48+40); // 平日 20:00
+  prefs.push(5*48+20, 6*48+20, 5*48+28, 6*48+28, 0*48+42,2*48+42,4*48+42); // 週末 10:00, 14:00 ...
+  let ti = 0, tries = 0;
+  const saved = brush;
+  for(const p of prefs){
+    if(goalMinutes()>=targetMin()) break;
+    const t = goal.tasks[ti%goal.tasks.length]; ti++;
+    brush = {k:'goal',t:t.n,i:t.i,d:t.d};
+    let si = p; while(si%48<46 && (!paintable(slots[si])||!paintable(slots[si+1])||(slots[si]&&slots[si].k==='goal'))) si++;
+    if(paintAt(si)==='stop') { if(++tries>20) break; }
+  }
+  // 如果還不夠，繼續塞平日晚上
+  for(let d=0; d<7 && goalMinutes()<targetMin(); d++){
+    for(let si=d*48+39; si<d*48+46 && goalMinutes()<targetMin(); si++) if(!slots[si]){ const t=goal.tasks[ti++%goal.tasks.length]; brush={k:'goal',t:t.n,i:t.i,d:30}; paintAt(si); }
+  }
+  brush = saved; refreshSetup(); toast('✨ 已把目標任務排進每週的晚上與週末');
+}
+function fillFree(){ let n=0; for(let i=0;i<TOTAL;i++) if(!slots[i]){slots[i]={...FREE};n++;} refreshSetup(); toast(n?`🛋️ 填入 ${n/2} 小時自由時間`:'已經沒有空格囉'); }
+function resetMine(){ slots = defaultSlots(); refreshSetup(); }
+
+/* ---------- ICS import ---------- */
+$('#icsInput').addEventListener('change', e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader(); r.onload = ()=>{ try{ importEvents(parseICS(r.result)); }catch(err){ toast('無法讀取這個檔案 😢'); console.error(err);} };
+  r.readAsText(f); e.target.value='';
+});
+function parseICS(text){
+  const lines = text.replace(/\r\n[ \t]/g,'').replace(/\n[ \t]/g,'').split(/\r?\n/);
+  const evs = []; let cur = null;
+  for(const ln of lines){
+    if(ln==='BEGIN:VEVENT') cur={};
+    else if(ln==='END:VEVENT'){ if(cur&&cur.start&&cur.end) evs.push(cur); cur=null; }
+    else if(cur){
+      const i = ln.indexOf(':'); if(i<0) continue;
+      const [name,...params] = ln.slice(0,i).split(';'), val = ln.slice(i+1);
+      if(name==='SUMMARY') cur.title = val.replace(/\\,/g,',').replace(/\\n/g,' ');
+      else if(name==='DTSTART') cur.start = icsDate(val);
+      else if(name==='DTEND') cur.end = icsDate(val);
+      else if(name==='RRULE') cur.rrule = Object.fromEntries(val.split(';').map(x=>x.split('=')));
+    }
+  }
+  return evs.filter(e=>e.start&&!e.start.allDay);
+}
+function icsDate(v){
+  const m = v.match(/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?(Z)?)?$/); if(!m) return null;
+  if(!m[4]) return {allDay:true};
+  const a=[+m[1],+m[2]-1,+m[3],+m[4],+m[5]];
+  return m[7] ? new Date(Date.UTC(...a)) : new Date(...a);
+}
+function importEvents(evs){
+  const mon = d=>{const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-((x.getDay()+6)%7));return x;};
+  let ws = mon(new Date());
+  const occ = ws0 => {
+    const out=[], we = new Date(ws0.getTime()+7*864e5), BY={MO:0,TU:1,WE:2,TH:3,FR:4,SA:5,SU:6};
+    for(const e of evs){
+      const dur = (e.end-e.start)/6e4; if(!(dur>0)||dur>16*60) continue;
+      const sm = e.start.getHours()*60+e.start.getMinutes();
+      if(!e.rrule){ if(e.start>=ws0&&e.start<we) out.push({d:(e.start.getDay()+6)%7,s:sm,dur,title:e.title}); continue; }
+      const until = e.rrule.UNTIL ? icsDate(e.rrule.UNTIL) : null;
+      if(e.start>=we || (until&&!until.allDay&&until<ws0)) continue;
+      let days = [];
+      if(e.rrule.FREQ==='DAILY') days=[0,1,2,3,4,5,6];
+      else if(e.rrule.FREQ==='WEEKLY') days = e.rrule.BYDAY ? e.rrule.BYDAY.split(',').map(x=>BY[x.slice(-2)]) : [(e.start.getDay()+6)%7];
+      days.forEach(d=>{ const dt=new Date(ws0.getTime()+d*864e5); if(dt>=mon(e.start)) out.push({d,s:sm,dur,title:e.title}); });
+    }
+    return out;
+  };
+  let list = occ(ws);
+  if(!list.length && evs.length){ const last = evs.reduce((a,e)=>e.start>a?e.start:a, evs[0].start); list = occ(mon(last)); }
+  placeImported(list);
+}
+function placeImported(list){
+  let n=0;
+  list.forEach(o=>{
+    const a = Math.floor(o.s/30), b = Math.min(48, Math.ceil((o.s+o.dur)/30)); let ok=false;
+    const g='imp'+(uid++);
+    for(let x=a;x<b;x++){ const si=o.d*48+x; if(slots[si]&&slots[si].k==='sleep') continue; slots[si]={k:'imported',t:o.title||'行程',i:'📅',g}; ok=true; }
+    if(ok) n++;
+  });
+  refreshSetup();
+  toast(n?`📅 已匯入 ${n} 個行程（以星期對應到 2027 第一週）`:'這個檔案在本週沒有找到行程');
+}
+function demoImport(){
+  placeImported([
+    {d:1,s:12*60,dur:60,title:'午餐會議'},{d:2,s:15*60,dur:60,title:'看牙醫'},
+    {d:3,s:19*60+30,dur:90,title:'健身房'},{d:5,s:18*60,dur:180,title:'朋友聚餐'},{d:6,s:14*60,dur:120,title:'陪家人'}]);
+}
+
+/* =====================================================================
+   CALENDAR RENDER
+   ===================================================================== */
+let H = 0;
+function buildCal(){
+  $('#calHead').innerHTML = '<div></div>' + DAYS.map((d,i)=>`<div class="dh" id="dh${i}">週${d}<small>${WEEK_DATES[i]}</small></div>`).join('');
+  const hh = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hh'));
+  H = hh*24;
+  let tc = '<div class="tcol" style="height:'+H+'px">'; for(let h=1;h<24;h++) tc+=`<div style="top:${h*hh}px">${pad(h)}:00</div>`; tc+='</div>';
+  let cols = ''; for(let d=0;d<7;d++) cols += `<div class="dcol" data-d="${d}" style="height:${H}px"><div class="cblocks"></div><div class="past"></div><div class="nowline"><b></b></div></div>`;
+  $('#calGrid').innerHTML = tc+cols;
+  const grid = $('#calGrid');
+  grid.onpointerdown = onCalPointer; grid.onpointermove = onCalPointer; grid.onpointerup = onCalPointer;
+}
+window.addEventListener('resize',()=>{ if(!$('#scr-cal').classList.contains('active')) return; buildCal(); renderCal(); });
+function renderCal(newOv){
+  const ph = H/48;
+  const cols = document.querySelectorAll('.dcol');
+  for(let d=0; d<7; d++){
+    let html = '';
+    let i = 0;
+    while(i<48){
+      const si=d*48+i, s=slots[si]; let j=i+1;
+      while(j<48 && key(slots[d*48+j])===key(s)) j++;
+      const top=i*ph, h=(j-i)*ph;
+      if(!s) html += `<div class="empty" style="top:${top+1}px;height:${h-2}px"></div>`;
+      else {
+        let cls = 'blk k-'+s.k + (h>=ph*2?' tall':'');
+        if(G && G.started){
+          const bs = G.bOf ? G.blocks[G.bOf[si]] : null;
+          if(overlapsOv(si*30,(d*48+j)*30)) cls+=' hit';
+          if(bs && s.k==='goal' && G.result[bs.s] && d*48+j===Math.min(bs.e, (d+1)*48)) cls+=' done-'+G.result[bs.s];
+        }
+        html += `<div class="${cls}" style="top:${top+1}px;height:${h-2}px" title="${s.t}"><span class="ic">${s.i}</span><span class="tt">${s.t}</span></div>`;
+      }
+      i=j;
+    }
+    // overlays
+    if(G) G.ov.forEach((o,oi)=>{
+      const a=Math.max(o.s,d*1440), b=Math.min(o.e,(d+1)*1440); if(b<=a) return;
+      const top=(a-d*1440)/1440*H, h=(b-a)/1440*H;
+      html += `<div class="ov ${o.cat==='night'?'night':''} ${o.cat==='work'?'work':''} ${newOv===oi?'slam':''}" style="top:${top}px;height:${Math.max(h,12)}px"><span class="oi">${o.icon}</span>${h>34?o.t:''}</div>`;
+    });
+    cols[d].querySelector('.cblocks').innerHTML = html;
+  }
+}
+function overlapsOv(a,b){ return G.ov.some(o=>o.s<b&&o.e>a); }
+
+/* =====================================================================
+   HUD
+   ===================================================================== */
+function updateHUD(){
+  $('#hudGoalIc').textContent = goal.icon; $('#hudGoal').textContent = goal.short;
+  const f = G.started ? G.focus : 0, T = targetMin();
+  const pct = Math.min(100, f/T*100);
+  $('#pbarFill').style.width = pct+'%';
+  $('#ptxt').textContent = G.started ? `專注 ${hrs(f)} / ${goal.weekly} h` : `目標 ${goal.weekly} h / 週`;
+  $('#coins').textContent = '🪙 '+G.coins;
+  $('#prots').innerHTML = [GIFT,...ITEMS].filter(it=>G.items[it.id]).map(it=>`<span title="${it.name}">${it.icon}${it.consumable&&G.items[it.id]>1?'×'+G.items[it.id]:''}</span>`).join('');
+  if(G.started){
+    $('#clock').textContent = fmtT(Math.min(G.t,WEEK_MIN-1)) + (G.tired.has(Math.floor(G.t/1440))?' 😵‍💫':'');
+  }
+}
+function bumpCoins(){ const c=$('#coins'); c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump'); }
+function fx(type, big, small){
+  const el = document.createElement('div'); el.className='fx '+type; el.innerHTML = big+(small?`<small>${small}</small>`:'');
+  const n = document.querySelectorAll('#cal .fx').length; el.style.top = (40+n*16)+'%';
+  $('#cal').appendChild(el); setTimeout(()=>el.remove(),1700);
+  if(type==='bad'){ const c=$('#cal'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); }
+}
+function log(type, html, m){
+  const el = document.createElement('div'); el.className='le '+type;
+  el.innerHTML = `<span class="lt">${fmtT(m==null?G.t:m)}</span><span>${html}</span>`;
+  const L = $('#log'); L.appendChild(el);
+  while(L.children.length>250) L.firstChild.remove();
+  L.scrollTop = L.scrollHeight;
+}
+
+/* =====================================================================
+   SHOP
+   ===================================================================== */
+function openShop(){ if(G.running) G.paused=true; renderShop(); $('#mShop').classList.add('show'); }
+function closeShop(){ closeModal('mShop'); if(G.running) G.paused=false; }
+function renderShop(){
+  $('#shopCoins').textContent = '🪙 '+G.coins;
+  $('#shopList').innerHTML = ITEMS.map(it=>{
+    const owned = G.items[it.id] && !it.consumable;
+    return `<div class="shop-item"><div class="si">${it.icon}</div><div class="sd"><b>${it.name}</b><small>${it.desc}</small>${it.forest?'<small class="forest">🌲 這就是 Forest App 的核心功能</small>':''}${it.consumable&&G.items[it.id]?`<small class="forest">持有 ×${G.items[it.id]}</small>`:''}</div>
+      ${owned?'<span class="owned">✓ 已啟用</span>':`<button class="btn sm ${G.coins<it.cost?'':'gold'}" ${G.coins<it.cost?'disabled':''} onclick="buy('${it.id}')">🪙 ${it.cost}</button>`}</div>`;
+  }).join('') + `<div class="shop-item" style="background:#fff7d6"><div class="si">🎯</div><div class="sd"><b>明確下一步</b><small>拆解 2027 目標時獲得，擋下「不知道從何開始」。</small></div><span class="owned">✓ 已啟用</span></div>`;
+}
+function buy(id){
+  const it = ITEMS.find(x=>x.id===id); if(G.coins<it.cost) return;
+  G.coins -= it.cost; G.items[id] = (G.items[id]||0)+1; G.spent += it.cost;
+  bumpCoins(); renderShop(); updateHUD();
+  if(G.started) log('shield', `🛒 啟用道具 <b>${it.icon} ${it.name}</b>`);
+  toast(`${it.icon} ${it.name} 已啟用！`);
+}
+
+/* =====================================================================
+   GAME ENGINE
+   ===================================================================== */
+function newGame(){
+  return {t:START_MIN, coins:START_COINS, focus:0, items:{clear:1}, ov:[], tired:new Set(), nightHit:new Set(),
+    started:false, running:false, paused:false, speed:1, acc:0, stats:{}, result:{}, lost:{}, lostGoal:{},
+    trees:[], blocked:0, resisted:0, gaveIn:0, spent:0, friend:false, reached:false, combo:0, dayGoalHit:{}, hookAt:-1};
+}
+function startGame(){
+  // precompute merged blocks (跨日合併，例如睡覺 23:30–07:30)
+  G.blocks=[]; G.bOf=new Array(TOTAL);
+  for(let i=0;i<TOTAL;){ let j=i+1; while(j<TOTAL&&key(slots[j])===key(slots[i])) j++; const b={s:i,e:j,slot:slots[i]}; for(let x=i;x<j;x++) G.bOf[x]=G.blocks.length; G.blocks.push(b); i=j; }
+  G.started = G.running = true;
+  $('#scr-cal').classList.add('playing');
+  $('#log').innerHTML='';
+  // 切換模式後重新量測
+  buildCal(); renderCal(); updateHUD();
+  log('sys', `🌅 2027 第一週開始！本週目標：<b>${goal.icon} ${goal.short} ${goal.weekly} 小時</b>`);
+  log('shield', `🎯 你已經把目標拆成具體任務，「不知道從何開始」不會發生`);
+  if(!ITEMS.some(i=>G.items[i.id])) log('sys', `💡 小提醒：可以隨時去 🛒 商店買預防道具`);
+  last = performance.now(); requestAnimationFrame(frame);
+}
+function setSpeed(s){ G.speed=s; document.querySelectorAll('#spd [data-s]').forEach(b=>b.classList.toggle('on',+b.dataset.s===s)); }
+function togglePause(){ G.paused=!G.paused; $('#pauseBtn').textContent = G.paused?'▶':'⏸'; }
+
+let last = 0, userScrollAt = 0;
+$('#calScroll').addEventListener('wheel',()=>userScrollAt=performance.now(),{passive:true});
+$('#calScroll').addEventListener('touchmove',()=>userScrollAt=performance.now(),{passive:true});
+
+function frame(ts){
+  if(!G.running) return;
+  const dt = Math.min(.1,(ts-last)/1000); last = ts;
+  if(!G.paused && !G.modal){
+    const s = slots[Math.floor(G.t/30)];
+    const quiet = s && s.k==='sleep' && !activeOv(G.t);
+    G.acc += dt*BASE_RATE*G.speed*(quiet?4:1);
+    let guard = 0;
+    while(G.acc>=1 && G.running && !G.modal && !G.paused && guard++<600){ if(step()) G.acc-=1; }
+  }
+  drawNow(); updateHUD();
+  requestAnimationFrame(frame);
+}
+function drawNow(){
+  const d = Math.floor(G.t/1440), tod = G.t%1440, y = tod/1440*H;
+  document.querySelectorAll('.dcol').forEach((c,i)=>{
+    c.querySelector('.past').style.height = (i<d?H:i===d?y:0)+'px';
+    const nl = c.querySelector('.nowline'); nl.style.display = i===d?'block':'none';
+    if(i===d){ nl.style.top=y+'px'; nl.querySelector('b').textContent = pad(Math.floor(tod/60))+':'+pad(tod%60); }
+  });
+  document.querySelectorAll('.dh').forEach((h,i)=>{ h.classList.toggle('today',i===d); let t=h.querySelector('.tired'); if(G.tired.has(i)){ if(!t){t=document.createElement('span');t.className='tired';t.textContent='😵‍💫';h.appendChild(t);} } });
+  if(performance.now()-userScrollAt>3500){
+    const sc=$('#calScroll'), want = y - sc.clientHeight*0.35;
+    sc.scrollTop += (want-sc.scrollTop)*0.15;
+  }
+}
+const activeOv = m => G.ov.find(o=>o.s<=m && m<o.e);
+
+/* returns true if a minute was consumed */
+function step(){
+  const m = G.t;
+  if(m>=WEEK_MIN){ endGame(); return false; }
+  const si = Math.floor(m/30), s = slots[si], day = Math.floor(m/1440), tod = m%1440;
+  const b = G.blocks[G.bOf[si]];
+  if(m%30===0 && G.hookAt!==m){
+    G.hookAt = m;
+    if(si===b.s) onBlockStart(b,m,day,tod); else onSlotMid(b,m,day,tod);
+    if(G.modal) return false;
+  }
+  const ov = activeOv(m);
+  if(s.k==='goal'){
+    const st = G.stats[b.s] || (G.stats[b.s]={done:0,lost:0,tot:(b.e-b.s)*30});
+    if(ov){ st.lost++; G.lostGoal[ov.cat]=(G.lostGoal[ov.cat]||0)+1; }
+    else {
+      const was = G.focus;
+      G.focus += G.tired.has(day)?0.5:1; st.done++;
+      if(!G.reached && G.focus>=targetMin()){ G.reached=true; log('good',`🎉 <b>本週目標 ${goal.weekly} 小時達成！</b>繼續守住剩下的時間吧`); fx('good','🎉 本週目標達成！','繼續累積森林'); }
+    }
+  }
+  if(ov) G.lost[ov.cat]=(G.lost[ov.cat]||0)+1;
+  G.t++;
+  if(G.t%30===0){
+    const ns = G.t/30;
+    if(ns>=TOTAL || G.bOf[ns]!==G.bOf[si]) onBlockEnd(b, G.t);
+  }
+  if(G.t%1440===0) onDayEnd(day);
+  return true;
+}
+
+function onBlockStart(b,m,day,tod){
+  const s = b.slot;
+  if(activeOv(m)) { if(s.k==='goal') log('bad',`⛔ <b>${s.i} ${s.t}</b> 的時間被前面的事件吃掉了`); return; }
+  if(s.k==='goal'){
+    log('sys',`▶ 開始目標任務：<b>${s.i} ${s.t}</b>${G.tired.has(day)?'（精神不濟，效率 -50%）':''}`);
+    if(G.friend){ G.friend=false; log('good','👯 和朋友一起種樹，這段專注不受打擾'); return; }
+    const p = G.tired.has(day) ? .7 : .55;
+    if(Math.random()<p) return trigger(rnd(EV.goal),m,true);
+  } else if(s.k==='free' || s.k==='mine'){
+    if(Math.random()<.28) return trigger(rnd(EV.free),m,false);
+    if(Math.random()<.22) good(rnd(GOOD));
+  } else if(s.k==='sleep' && tod===1410 && day<6){
+    log('sys','🛏️ 該睡覺了');
+    if(Math.random()<.5) return trigger(rnd(EV.night),m,false);
+  } else if((s.k==='meal'||s.k==='nap'||s.k==='life') && Math.random()<.12){
+    good(rnd(GOOD));
+  } else if(s.k==='imported'){
+    log('sys',`📅 ${s.t}`);
+  }
+}
+function onSlotMid(b,m,day,tod){
+  const s = b.slot;
+  if(activeOv(m)) return;
+  if(s.k==='goal' && Math.random()<.14) return trigger(rnd(EV.goalMid),m,true);
+  if(s.k==='work' && tod===1020 && day<5 && Math.random()<.2) return trigger(EV.work[0],m,false);
+}
+function onBlockEnd(b,m){
+  const s = b.slot, day = Math.floor((m-1)/1440);
+  if(s.k==='goal'){
+    const st = G.stats[b.s]||{done:0,lost:0,tot:1};
+    let r, msg;
+    if(st.lost===0){ r='tree'; G.coins+=2; G.combo++; msg=`🌳 <b>${s.t}</b> 完成！種下一棵樹 <b>+2 🪙</b>`; log('good',msg); bumpCoins(); }
+    else if(st.done>=st.tot*.5){ r='sprout'; G.coins+=1; G.combo=0; log('sys',`🌱 <b>${s.t}</b> 被打斷但撐住了一半，長出小樹苗 +1 🪙`); bumpCoins(); }
+    else { r='dead'; G.combo=0; log('bad',`🥀 <b>${s.t}</b> 幾乎被偷光，樹枯萎了`); }
+    G.result[b.s]=r; G.trees.push(r);
+    if(r!=='tree') G.dayGoalHit[day]=true;
+    if(G.combo===3){ G.coins+=3; G.combo=0; log('good','🔥 連續 3 段完整專注！<b>+3 🪙</b>'); fx('good','🔥 3 連勝！','+3 🪙'); bumpCoins(); }
+    renderCal();
+  }
+  if(s.k==='sleep' && m%1440>=420){
+    const d = Math.floor(m/1440);
+    if(G.nightHit.has(d)){
+      const o = {s:m,e:m+120,cat:'night',icon:'😴',t:'爬不起來，晚起 2 小時'};
+      G.ov.push(o); G.tired.add(d);
+      log('bad',`😴 <b>昨晚熬夜，爬不起來晚起 2 小時</b>，今天整天精神不濟（專注效率 -50%）`);
+      renderCal(G.ov.length-1); fx('bad','😴 晚起 2 小時','今天專注效率 -50%');
+    } else if(d>0 && Math.random()<.4){
+      G.coins+=2; bumpCoins(); log('good','☀️ <b>早睡早起，精神超好</b> +2 🪙');
+    }
+  }
+}
+function onDayEnd(day){
+  const hadGoal = G.blocks.some(b=>b.slot.k==='goal' && Math.floor(b.s/48)===day);
+  if(hadGoal && !G.dayGoalHit[day]){ G.coins+=2; bumpCoins(); log('good',`🏅 週${DAYS[day]}的目標時段全部守住！<b>+2 🪙</b>`); }
+  if(day<6) log('sys',`—— 週${DAYS[day]}結束：累積專注 ${hrs(G.focus)} / ${goal.weekly} 小時 ——`);
+}
+function good(e){
+  G.coins += e.coins; bumpCoins();
+  if(e.buff==='friend') G.friend = true;
+  log('good',`${e.icon} <b>${e.t}</b>，${e.d} <b>+${e.coins} 🪙</b>`);
+  fx('good',`${e.icon} +${e.coins} 🪙`, e.t);
+}
+
+function protectedBy(ev,inGoal){
+  return [GIFT,...ITEMS].find(it=>G.items[it.id] && it.cats && it.cats.includes(ev.cat) && (!it.goalOnly||inGoal));
+}
+function trigger(ev,m,inGoal){
+  const p = protectedBy(ev,inGoal);
+  if(p){
+    G.blocked++;
+    log('shield',`${p.icon} <b>${p.name}</b> 幫你擋下了「${ev.t}」，省下 ${ev.dur} 分鐘`);
+    fx('shield',`${p.icon} 擋下！`, ev.icon+' '+ev.t);
+    return;
+  }
+  if(G.items.shield>0){
+    G.items.shield--; G.blocked++;
+    log('shield',`🛡️ <b>專注護盾</b> 擋下了「${ev.t}」`);
+    fx('shield','🛡️ 護盾擋下！', ev.icon+' '+ev.t);
+    return;
+  }
+  openEvent(ev,m);
+}
+let evTimer = null;
+function openEvent(ev,m){
+  G.modal = {ev,m};
+  const can = G.coins>=ev.cost;
+  $('#mEventCard').innerHTML = `
+    <div class="ev-ic">${ev.icon}</div>
+    <div class="ev-t">${ev.t}</div>
+    <div class="ev-d">${ev.d}</div>
+    <span class="ev-tag">⚠️ 可能被偷走 ${ev.dur} 分鐘</span>
+    <div class="ev-btns">
+      <button class="btn" ${can?'':'disabled'} onclick="resolveEvent(true)">🌳 ${ev.r}（🪙 ${ev.cost}）</button>
+      <button class="btn danger" onclick="resolveEvent(false)">😩 算了，就這樣吧</button>
+    </div>
+    <div class="hint">${can?'不選的話，分心就會自動發生…':'金幣不夠！下次可以先去 🛒 商店買預防道具'}</div>
+    <div class="timer"><i id="evBar"></i></div>`;
+  $('#mEvent').classList.add('show');
+  const bar = $('#evBar'); bar.style.transition='none'; bar.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ bar.style.transition='width 7s linear'; bar.style.width='0%'; }));
+  clearTimeout(evTimer); evTimer = setTimeout(()=>resolveEvent(false), 7000);
+}
+function resolveEvent(resist){
+  if(!G.modal) return;
+  clearTimeout(evTimer);
+  const {ev,m} = G.modal; G.modal = null; closeModal('mEvent');
+  if(resist){
+    G.coins -= ev.cost; G.resisted++; bumpCoins();
+    log('good',`💪 抵抗成功：「${ev.t}」→ ${ev.r}（-${ev.cost} 🪙）`);
+    fx('good','💪 守住了！', ev.r);
+  } else {
+    G.gaveIn++;
+    const s = ev.at!=null ? Math.floor(m/1440)*1440+ev.at : m;
+    const o = {s, e:Math.min(WEEK_MIN, s+ev.dur), cat:ev.cat, icon:ev.icon, t:ev.t};
+    G.ov.push(o);
+    if(ev.cat==='night') G.nightHit.add(Math.floor(m/1440)+1);
+    log('bad',`${ev.icon} <b>${ev.t}</b>：${ev.d}（-${ev.dur} 分鐘）`);
+    renderCal(G.ov.length-1);
+    fx('bad',`${ev.icon} -${ev.dur} 分鐘`, ev.t);
+  }
+  last = performance.now();
+}
+
+/* =====================================================================
+   RESULT
+   ===================================================================== */
+function endGame(){
+  G.running = false;
+  const T = targetMin(), f = G.focus, win = f>=T;
+  const pct = Math.round(f/T*100);
+  const yearH = Math.round(f/60*52), yearT = goal.weekly*52;
+  const trees = G.trees.filter(x=>x==='tree').length, sprouts=G.trees.filter(x=>x==='sprout').length, dead=G.trees.filter(x=>x==='dead').length;
+  const lostTot = Object.values(G.lostGoal).reduce((a,b)=>a+b,0);
+  const thieves = Object.entries(G.lost).sort((a,b)=>b[1]-a[1]);
+  const maxL = thieves.length?thieves[0][1]:1;
+  const top = thieves[0] ? thieves[0][0] : null;
+  G.summary = {win,f,T,pct,yearH,yearT,trees,sprouts,dead,lostTot,thieves,top};
+  const forestStr = G.trees.map(x=>x==='tree'?'🌳':x==='sprout'?'🌱':'🥀').join('') || '🌫️';
+  $('#resultWrap').innerHTML = `
+    <div class="res-h">
+      <div class="em">${win?'🏆':'😵'}</div>
+      <h2>${win?'你守住了這週的 2027！':'這週的時間被偷走了…'}</h2>
+      <p class="muted">${goal.icon} ${goal.name}</p>
+    </div>
+    <div class="statgrid">
+      <div class="stat"><b>${hrs(f)}<small> / ${goal.weekly}h</small></b><small>本週專注</small></div>
+      <div class="stat"><b>${trees}🌳</b><small>完整專注</small></div>
+      <div class="stat"><b>${hrs(lostTot)}h</b><small>目標時間被偷</small></div>
+    </div>
+    <div class="card"><h3>🌲 你這週種出的森林</h3><div class="forest-grid">${forestStr}</div>
+      <p class="muted" style="font-size:12px;margin-top:6px">🌳 完整專注 ${trees}　🌱 撐住一半 ${sprouts}　🥀 被偷光 ${dead}　｜ 道具擋下 ${G.blocked} 次・硬撐抵抗 ${G.resisted} 次</p></div>
+    <div class="card"><h3>📈 照這個節奏，你的 2027…</h3>
+      <p>全年將投入 <b style="font-size:20px;color:var(--green-d)">${yearH}</b> 小時（目標 ${yearT} 小時）</p>
+      <div class="pbar" style="margin:8px 0"><i style="width:${Math.min(100,pct)}%"></i></div>
+      <p class="muted" style="font-size:13px">${pct>=100?'穩穩達標！保持這個節奏，2027 年底你就做到了。':pct>=70?`差一點！只要每週再守住 ${hrs(T-f)} 小時就能達標。`:'照這樣下去，2027 的目標會變成 2028 的目標…'}</p></div>
+    ${thieves.length?`<div class="card"><h3>🕵️ 本週時間小偷排行 <small class="muted" style="font-weight:500">（含被偷走的睡眠與生活時間）</small></h3>
+      ${thieves.map(([c,v])=>`<div class="thief"><span class="nm">${CAT_NAME[c]}</span><span class="bar"><i style="width:${v/maxL*100}%"></i></span><span class="v">${hrs(v)}h</span></div>`).join('')}
+      <div class="tip">🌳 ${TIP[top]}</div></div>`
+      :`<div class="card"><h3>🕵️ 時間小偷</h3><p>這週完全沒有被偷走時間，你是專注大師！🧘</p></div>`}
+    <div class="card" style="background:var(--green);color:#fff">
+      <h3>🌱 把這一週，變成真實的 2027</h3>
+      <p style="font-size:14px;opacity:.95">遊戲裡的分心都是真實生活會發生的事。Forest 用「種樹」幫你守住專注時間：專心多久，樹就長多大；分心離開，樹就會枯萎。</p>
+    </div>
+    <div class="cta">
+      <a class="btn big" href="${LINKS.download}" target="_blank" rel="noopener" onclick="track('download')">🌳 下載 Forest，開始守住 2027</a>
+      <button class="btn gold" onclick="openShare()">📤 分享給朋友，看誰守得住</button>
+      <div class="row" style="justify-content:center">
+        <button class="btn ghost sm" onclick="replay(false)">🔁 同目標再挑戰</button>
+        <button class="btn ghost sm" onclick="replay(true)">🎯 換一個目標</button>
+      </div>
+    </div>
+    <p class="brand center">Forest 專注森林 · 品牌互動體驗 Prototype</p>`;
+  setTimeout(()=>go('result'), 600);
+  log('sys','🏁 這一週結束了！');
+}
+function replay(newGoal){
+  if(newGoal){ goal=null; document.querySelectorAll('.goal').forEach(b=>b.classList.remove('sel')); $('#goalNext').disabled=true; go('goal'); }
+  else toSetup();
+}
+function track(ev){ /* 接上 GA / Pixel 等追蹤 */ console.log('[track]',ev); }
+
+/* ---------- Share card ---------- */
+let cardBlob = null;
+function shareURL(){
+  const u = new URL(location.href); u.search='';
+  u.searchParams.set('from','share'); u.searchParams.set('g',goal.id);
+  u.searchParams.set('h',hrs(G.summary.f)); u.searchParams.set('t',goal.weekly);
+  return u.toString();
+}
+function openShare(){
+  track('share_open');
+  const c = document.createElement('canvas'); c.width=1080; c.height=1350;
+  const x = c.getContext('2d'), S=G.summary;
+  const gr = x.createLinearGradient(0,0,0,1350); gr.addColorStop(0,'#2e9d5b'); gr.addColorStop(1,'#175a33');
+  x.fillStyle=gr; x.fillRect(0,0,1080,1350);
+  x.fillStyle='rgba(255,255,255,.08)'; for(let i=0;i<12;i++){x.beginPath();x.arc(Math.random()*1080,Math.random()*1350,40+Math.random()*120,0,7);x.fill();}
+  x.textAlign='center'; x.fillStyle='#fff';
+  const F = 'PingFang TC, Noto Sans TC, Microsoft JhengHei, sans-serif';
+  x.font=`700 40px ${F}`; x.globalAlpha=.85; x.fillText('我的 2027 目標',540,150); x.globalAlpha=1;
+  x.font=`900 66px ${F}`; x.fillText(`${goal.icon} ${goal.short}`,540,240);
+  x.fillStyle='#fff'; roundRect(x,90,300,900,420,40); x.fill();
+  x.fillStyle='#1d6b3e'; x.font=`700 38px ${F}`; x.fillText(S.win?'🏆 這週我守住了！':'😵 這週時間被偷走了…',540,385);
+  { const a=hrs(S.f), b=` / ${goal.weekly} h`;
+    x.font=`900 150px ${F}`; const wa=x.measureText(a).width; x.font=`700 54px ${F}`; const wb=x.measureText(b).width;
+    const x0=540-(wa+wb)/2; x.textAlign='left';
+    x.font=`900 150px ${F}`; x.fillText(a,x0,560);
+    x.font=`700 54px ${F}`; x.fillStyle='#6b7a70'; x.fillText(b,x0+wa,560); x.textAlign='center'; }
+  x.font=`500 34px ${F}`; x.fillText(`種下 ${S.trees} 棵樹 · 被偷走 ${hrs(S.lostTot)} 小時`,540,650);
+  x.fillStyle='#fff'; x.font=`60px ${F}`;
+  const trees = G.trees.map(t=>t==='tree'?'🌳':t==='sprout'?'🌱':'🥀');
+  for(let i=0;i<Math.min(trees.length,24);i++) x.fillText(trees[i], 540-(Math.min(trees.length,8)-1)*55+ (i%8)*110, 820+Math.floor(i/8)*80);
+  x.font=`700 40px ${F}`;
+  if(S.top) x.fillText(`最大時間小偷：${CAT_NAME[S.top]}`,540,1110);
+  x.font=`900 52px ${F}`; x.fillText('你守得住你的 2027 嗎？',540,1200);
+  x.font=`500 32px ${F}`; x.globalAlpha=.8; x.fillText('Forest 專注森林 · 時間攻防戰',540,1270); x.globalAlpha=1;
+  const url = c.toDataURL('image/png'); $('#shareImg').src = url;
+  c.toBlob(b=>cardBlob=b,'image/png');
+  $('#nativeShare').style.display = navigator.share ? '' : 'none';
+  $('#mShare').classList.add('show');
+}
+function roundRect(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath();}
+async function nativeShare(){
+  track('share_native');
+  const text = `我的 2027 目標「${goal.short}」這週守住了 ${hrs(G.summary.f)}/${goal.weekly} 小時 🌳 你守得住嗎？`;
+  try{
+    const file = cardBlob && new File([cardBlob],'forest-2027.png',{type:'image/png'});
+    if(file && navigator.canShare && navigator.canShare({files:[file]})) await navigator.share({files:[file],text,url:shareURL()});
+    else await navigator.share({title:'守住你的 2027｜Forest',text,url:shareURL()});
+  }catch(e){}
+}
+function downloadCard(){ track('share_download'); const a=document.createElement('a'); a.href=$('#shareImg').src; a.download='forest-2027.png'; a.click(); }
+function copyLink(){
+  track('share_link');
+  const u = shareURL();
+  (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast('🔗 挑戰連結已複製，貼給朋友吧！')).catch(()=>prompt('複製這個連結：',u));
+}
+
+renderGoals();
+</script>
+</body>
+</html>
