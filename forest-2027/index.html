@@ -894,6 +894,7 @@ function drawNow(){
     sc.scrollTop += (want-sc.scrollTop)*0.15;
   }
 }
+const awakeCost = ev => ev.cat==='night' ? 120 : ev.dur; // 熬夜的代價＝隔天晚起 2 小時
 const activeOv = m => G.ov.find(o=>o.s<=m && m<o.e);
 
 /* returns true if a minute was consumed */
@@ -917,7 +918,7 @@ function step(){
       if(!G.reached && G.focus>=targetMin()){ G.reached=true; log('good',`🎉 <b>本週目標 ${goal.weekly} 小時達成！</b>繼續守住剩下的時間吧`); fx('good','🎉 本週目標達成！','繼續累積森林'); }
     }
   }
-  if(ov) G.lost[ov.cat]=(G.lost[ov.cat]||0)+1;
+  if(ov && s.k!=='sleep') G.lost[ov.cat]=(G.lost[ov.cat]||0)+1; // 只算清醒時間，被吃掉的睡眠不算
   G.t++;
   if(G.t%30===0){
     const ns = G.t/30;
@@ -996,13 +997,13 @@ function protectedBy(ev,inGoal){
 function trigger(ev,m,inGoal){
   const p = protectedBy(ev,inGoal);
   if(p){
-    G.blocked++; G.blockedBy[p.id]=(G.blockedBy[p.id]||0)+ev.dur;
-    log('shield',`${p.icon} <b>${p.name}</b> 幫你擋下了「${ev.t}」，省下 ${ev.dur} 分鐘`);
+    G.blocked++; G.blockedBy[p.id]=(G.blockedBy[p.id]||0)+awakeCost(ev);
+    log('shield',`${p.icon} <b>${p.name}</b> 幫你擋下了「${ev.t}」，省下 ${awakeCost(ev)} 分鐘`);
     fx('shield',`${p.icon} 擋下！`, ev.icon+' '+ev.t);
     return;
   }
   if(G.items.shield>0){
-    G.items.shield--; G.blocked++; G.blockedBy.shield=(G.blockedBy.shield||0)+ev.dur;
+    G.items.shield--; G.blocked++; G.blockedBy.shield=(G.blockedBy.shield||0)+awakeCost(ev);
     log('shield',`🛡️ <b>專注護盾</b> 擋下了「${ev.t}」`);
     fx('shield','🛡️ 護盾擋下！', ev.icon+' '+ev.t);
     return;
@@ -1017,7 +1018,7 @@ function openEvent(ev,m){
     <div class="ev-ic">${ev.icon}</div>
     <div class="ev-t">${ev.t}</div>
     <div class="ev-d">${ev.d}</div>
-    <span class="ev-tag">⚠️ 可能被偷走 ${ev.dur} 分鐘</span>
+    <span class="ev-tag">⚠️ ${ev.cat==='night'?'明天會晚起 2 小時，而且整天效率 -50%':`可能被偷走 ${ev.dur} 分鐘`}</span>
     <div class="ev-btns">
       <button class="btn" ${can?'':'disabled'} onclick="resolveEvent(true)">🌳 ${ev.r}（🪙 ${ev.cost}）</button>
       <button class="btn danger" onclick="resolveEvent(false)">😩 算了，就這樣吧</button>
@@ -1034,7 +1035,7 @@ function resolveEvent(resist){
   clearTimeout(evTimer);
   const {ev,m} = G.modal; G.modal = null; closeModal('mEvent');
   if(resist){
-    G.coins -= ev.cost; G.resisted++; G.resistedMin=(G.resistedMin||0)+ev.dur; bumpCoins();
+    G.coins -= ev.cost; G.resisted++; G.resistedMin=(G.resistedMin||0)+awakeCost(ev); bumpCoins();
     log('good',`💪 抵抗成功：「${ev.t}」→ ${ev.r}（-${ev.cost} 🪙）`);
     fx('good','💪 守住了！', ev.r);
   } else {
