@@ -162,6 +162,11 @@ h2.title{font-size:24px;margin-bottom:4px}
 .le.sys{color:var(--muted)}
 .le b{font-weight:800}
 .setup-only{} .play-only{display:none}
+.setup-foot{flex:none;display:flex;align-items:center;gap:10px;justify-content:space-between;background:#fff;border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));z-index:5}
+.setup-foot .sf-txt{font-size:12px;line-height:1.35}
+.setup-foot .btn{flex:none}
+.logp h3 .chev{display:none}
+@media (max-width:860px){.logp h3 .chev{display:inline}}
 #scr-cal.playing .setup-only{display:none}
 #scr-cal.playing .play-only{display:flex}
 #scr-cal:not(.playing) .logp{display:none}
@@ -214,21 +219,30 @@ h2.title{font-size:24px;margin-bottom:4px}
 .cta{display:grid;gap:10px;margin-top:16px}
 .cta .btn{width:100%}
 .share-img{width:100%;border-radius:14px;margin:6px 0 12px;box-shadow:0 4px 20px rgba(0,0,0,.12)}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:600;z-index:200;transition:transform .3s;max-width:90vw;text-align:center}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(120px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:600;z-index:200;transition:transform .3s;max-width:90vw;text-align:center}
 .toast.show{transform:translateX(-50%) translateY(0)}
 
 @media (max-width:860px){
-  :root{--hh:26px}
+  :root{--hh:32px}
   .game-body{flex-direction:column}
-  .logp{width:auto;height:30%;min-height:150px;border-left:0;border-top:1px solid var(--line)}
+  /* 手機：事件紀錄變成可展開的底部抽屜，把空間留給行事曆 */
+  .logp{width:auto;flex:none;border-left:0;border-top:1px solid var(--line);box-shadow:0 -6px 16px rgba(0,0,0,.06)}
+  .logp h3{padding:6px 12px;font-size:13px;cursor:pointer}
+  .log{max-height:84px;padding:4px 8px;transition:max-height .25s}
+  .logp.open .log{max-height:45vh}
+  .le{padding:4px 6px;margin-bottom:2px;font-size:12px}
+  .le .lt{width:56px}
+  .topbar{position:relative;padding:8px 10px 10px;gap:6px}
+  .topbar .goalname #hudGoal{display:none}
+  .pbar{position:absolute;left:0;right:0;bottom:0;height:5px;border-radius:0;min-width:0}
+  .pill{font-size:13px;padding:3px 8px}
+  .setup-foot{position:sticky;bottom:0}
   .cal-head,.cal-grid{grid-template-columns:30px repeat(7,1fr)}
   .blk{font-size:9.5px;padding:0 2px}
   .blk .ic{display:none}
   .blk.tall .ic{display:inline}
   .ov{font-size:9.5px}
   .ov .oi{font-size:13px}
-  .topbar{padding:8px 10px;gap:8px}
-  .pbar{order:9;flex-basis:100%}
   .hero h1{font-size:28px}
   .tools{flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px}
   .tools .btn{flex:none}
@@ -297,7 +311,7 @@ h2.title{font-size:24px;margin-bottom:4px}
     <span class="prots" id="prots"></span>
     <span class="pill play-only" id="clock">週一 07:00</span>
     <span class="spd play-only" id="spd">
-      <button onclick="togglePause()" id="pauseBtn">⏸</button>
+      <button onclick="togglePause()" id="pauseBtn">❚❚</button>
       <button data-s="1" class="on" onclick="setSpeed(1)">1x</button>
       <button data-s="2" onclick="setSpeed(2)">2x</button>
       <button data-s="4" onclick="setSpeed(4)">4x</button>
@@ -313,7 +327,6 @@ h2.title{font-size:24px;margin-bottom:4px}
       <button class="btn ghost sm" onclick="autoPlan()">✨ 自動排目標</button>
       <button class="btn ghost sm" onclick="fillFree()">🛋️ 剩下的填自由時間</button>
       <button class="btn ghost sm" onclick="resetMine()">↺ 重來</button>
-      <button class="btn sm" id="startBtn" disabled onclick="startGame()">▶ 開始這一週</button>
     </div>
     <div class="brushes" id="brushes"></div>
   </div>
@@ -322,10 +335,14 @@ h2.title{font-size:24px;margin-bottom:4px}
       <div class="cal-head" id="calHead"></div>
       <div class="cal-scroll" id="calScroll"><div class="cal-grid" id="calGrid"></div></div>
     </div>
-    <div class="logp">
-      <h3><span>📜 事件紀錄</span><span class="muted" style="font-weight:500;font-size:12px" id="logHint">時間會自動前進</span></h3>
+    <div class="logp" id="logp">
+      <h3 onclick="$('#logp').classList.toggle('open')"><span>📜 事件紀錄</span><span class="muted" style="font-weight:500;font-size:12px" id="logHint">時間會自動前進 <span class="chev">▴</span></span></h3>
       <div class="log" id="log"></div>
     </div>
+  </div>
+  <div class="setup-foot setup-only">
+    <div class="sf-txt" id="sfTxt"></div>
+    <button class="btn" id="startBtn" disabled onclick="startGame()">▶ 開始這一週</button>
   </div>
 </section>
 
@@ -628,6 +645,8 @@ function updateSetup(){
     <span class="${ok2?'ok':'no'}">${ok2?'✅':'⬜'} 空白時段 ${em} 格（30分/格）</span>
     <span class="muted">💡 突發事件一定會偷時間，建議多排 1–2 小時緩衝（上限 ${goal.weekly+3}h）</span>`;
   $('#startBtn').disabled = !(ok1&&ok2);
+  $('#sfTxt').innerHTML = ok1&&ok2 ? '<b style="color:var(--green-d)">✅ 一週排滿了！</b><br><span class="muted">準備好守住你的 2027 了嗎？</span>'
+    : `<b>還差一點才能開始</b><br><span class="muted">${ok1?'':`目標還差 ${hrs(targetMin()-gm)} 小時`}${!ok1&&!ok2?'・':''}${ok2?'':`還有 ${em} 個空格`}</span>`;
 }
 function autoPlan(){
   // 先清掉既有目標
@@ -826,7 +845,7 @@ function buy(id){
 function newGame(){
   return {t:START_MIN, coins:START_COINS, focus:0, items:{clear:1}, ov:[], tired:new Set(), nightHit:new Set(),
     started:false, running:false, paused:false, speed:1, acc:0, stats:{}, result:{}, lost:{}, lostGoal:{},
-    trees:[], blocked:0, resisted:0, gaveIn:0, spent:0, friend:false, reached:false, combo:0, dayGoalHit:{}, hookAt:-1};
+    trees:[], blocked:0, blockedBy:{}, resisted:0, gaveIn:0, spent:0, friend:false, reached:false, combo:0, dayGoalHit:{}, hookAt:-1};
 }
 function startGame(){
   // precompute merged blocks (跨日合併，例如睡覺 23:30–07:30)
@@ -843,7 +862,7 @@ function startGame(){
   last = performance.now(); requestAnimationFrame(frame);
 }
 function setSpeed(s){ G.speed=s; document.querySelectorAll('#spd [data-s]').forEach(b=>b.classList.toggle('on',+b.dataset.s===s)); }
-function togglePause(){ G.paused=!G.paused; $('#pauseBtn').textContent = G.paused?'▶':'⏸'; }
+function togglePause(){ G.paused=!G.paused; $('#pauseBtn').textContent = G.paused?'▶':'❚❚'; }
 
 let last = 0, userScrollAt = 0;
 $('#calScroll').addEventListener('wheel',()=>userScrollAt=performance.now(),{passive:true});
@@ -977,13 +996,13 @@ function protectedBy(ev,inGoal){
 function trigger(ev,m,inGoal){
   const p = protectedBy(ev,inGoal);
   if(p){
-    G.blocked++;
+    G.blocked++; G.blockedBy[p.id]=(G.blockedBy[p.id]||0)+ev.dur;
     log('shield',`${p.icon} <b>${p.name}</b> 幫你擋下了「${ev.t}」，省下 ${ev.dur} 分鐘`);
     fx('shield',`${p.icon} 擋下！`, ev.icon+' '+ev.t);
     return;
   }
   if(G.items.shield>0){
-    G.items.shield--; G.blocked++;
+    G.items.shield--; G.blocked++; G.blockedBy.shield=(G.blockedBy.shield||0)+ev.dur;
     log('shield',`🛡️ <b>專注護盾</b> 擋下了「${ev.t}」`);
     fx('shield','🛡️ 護盾擋下！', ev.icon+' '+ev.t);
     return;
@@ -1015,7 +1034,7 @@ function resolveEvent(resist){
   clearTimeout(evTimer);
   const {ev,m} = G.modal; G.modal = null; closeModal('mEvent');
   if(resist){
-    G.coins -= ev.cost; G.resisted++; bumpCoins();
+    G.coins -= ev.cost; G.resisted++; G.resistedMin=(G.resistedMin||0)+ev.dur; bumpCoins();
     log('good',`💪 抵抗成功：「${ev.t}」→ ${ev.r}（-${ev.cost} 🪙）`);
     fx('good','💪 守住了！', ev.r);
   } else {
@@ -1046,40 +1065,70 @@ function endGame(){
   const top = thieves[0] ? thieves[0][0] : null;
   G.summary = {win,f,T,pct,yearH,yearT,trees,sprouts,dead,lostTot,thieves,top};
   const forestStr = G.trees.map(x=>x==='tree'?'🌳':x==='sprout'?'🌱':'🥀').join('') || '🌫️';
-  $('#resultWrap').innerHTML = `
-    <div class="res-h">
-      <div class="em">${win?'🏆':'😵'}</div>
-      <h2>${win?'你守住了這週的 2027！':'這週的時間被偷走了…'}</h2>
-      <p class="muted">${goal.icon} ${goal.name}</p>
-    </div>
-    <div class="statgrid">
-      <div class="stat"><b>${hrs(f)}<small> / ${goal.weekly}h</small></b><small>本週專注</small></div>
-      <div class="stat"><b>${trees}🌳</b><small>完整專注</small></div>
-      <div class="stat"><b>${hrs(lostTot)}h</b><small>目標時間被偷</small></div>
-    </div>
-    <div class="card"><h3>🌲 你這週種出的森林</h3><div class="forest-grid">${forestStr}</div>
-      <p class="muted" style="font-size:12px;margin-top:6px">🌳 完整專注 ${trees}　🌱 撐住一半 ${sprouts}　🥀 被偷光 ${dead}　｜ 道具擋下 ${G.blocked} 次・硬撐抵抗 ${G.resisted} 次</p></div>
-    <div class="card"><h3>📈 照這個節奏，你的 2027…</h3>
+  const lostAll = thieves.reduce((a,[,v])=>a+v,0);
+  const dl = label => `<a class="btn big" style="width:100%;background:#fff;color:var(--green-d);box-shadow:0 4px 0 rgba(0,0,0,.18)" href="${LINKS.download}" target="_blank" rel="noopener" onclick="track('download_${win?'win':'lose'}')">${label}</a>`;
+  const forestCard = `<div class="card"><h3>🌲 你這週種出的森林</h3><div class="forest-grid">${forestStr}</div>
+      <p class="muted" style="font-size:12px;margin-top:6px">🌳 完整專注 ${trees}　🌱 撐住一半 ${sprouts}　🥀 被偷光 ${dead}</p></div>`;
+  const projCard = `<div class="card"><h3>📈 照這個節奏，你的 2027…</h3>
       <p>全年將投入 <b style="font-size:20px;color:var(--green-d)">${yearH}</b> 小時（目標 ${yearT} 小時）</p>
-      <div class="pbar" style="margin:8px 0"><i style="width:${Math.min(100,pct)}%"></i></div>
-      <p class="muted" style="font-size:13px">${pct>=100?'穩穩達標！保持這個節奏，2027 年底你就做到了。':pct>=70?`差一點！只要每週再守住 ${hrs(T-f)} 小時就能達標。`:'照這樣下去，2027 的目標會變成 2028 的目標…'}</p></div>
-    ${thieves.length?`<div class="card"><h3>🕵️ 本週時間小偷排行 <small class="muted" style="font-weight:500">（含被偷走的睡眠與生活時間）</small></h3>
+      <div class="pbar" style="margin:8px 0;position:relative;height:12px"><i style="width:${Math.min(100,pct)}%"></i></div>
+      <p class="muted" style="font-size:13px">${pct>=100?'穩穩達標！保持這個節奏，2027 年底你就做到了。':pct>=70?`差一點！只要每週再守住 ${hrs(T-f)} 小時就能達標。`:'照這樣下去，2027 的目標會變成 2028 的目標…'}</p></div>`;
+  const thiefCard = thieves.length ? `<div class="card"><h3>🕵️ 本週時間小偷排行 <small class="muted" style="font-weight:500">（共 ${hrs(lostAll)} 小時）</small></h3>
       ${thieves.map(([c,v])=>`<div class="thief"><span class="nm">${CAT_NAME[c]}</span><span class="bar"><i style="width:${v/maxL*100}%"></i></span><span class="v">${hrs(v)}h</span></div>`).join('')}
-      <div class="tip">🌳 ${TIP[top]}</div></div>`
-      :`<div class="card"><h3>🕵️ 時間小偷</h3><p>這週完全沒有被偷走時間，你是專注大師！🧘</p></div>`}
-    <div class="card" style="background:var(--green);color:#fff">
-      <h3>🌱 把這一週，變成真實的 2027</h3>
-      <p style="font-size:14px;opacity:.95">遊戲裡的分心都是真實生活會發生的事。Forest 用「種樹」幫你守住專注時間：專心多久，樹就長多大；分心離開，樹就會枯萎。</p>
-    </div>
-    <div class="cta">
-      <a class="btn big" href="${LINKS.download}" target="_blank" rel="noopener" onclick="track('download')">🌳 下載 Forest，開始守住 2027</a>
-      <button class="btn gold" onclick="openShare()">📤 分享給朋友，看誰守得住</button>
+      <div class="tip">🌳 ${TIP[top]}</div></div>` : '';
+  const tail = `<div class="cta">
+      <button class="btn gold" onclick="openShare()">📤 ${win?'炫耀一下，挑戰朋友':'分享給朋友，看誰守得住'}</button>
       <div class="row" style="justify-content:center">
         <button class="btn ghost sm" onclick="replay(false)">🔁 同目標再挑戰</button>
         <button class="btn ghost sm" onclick="replay(true)">🎯 換一個目標</button>
-      </div>
-    </div>
+      </div></div>
     <p class="brand center">Forest 專注森林 · 品牌互動體驗 Prototype</p>`;
+  const stats = `<div class="statgrid">
+      <div class="stat"><b>${hrs(f)}<small> / ${goal.weekly}h</small></b><small>本週專注</small></div>
+      <div class="stat"><b>${trees}🌳</b><small>完整專注</small></div>
+      <div class="stat"><b>${hrs(lostTot)}h</b><small>目標時間被偷</small></div></div>`;
+  let html;
+  if(win){
+    // 成功：把這週守住時間的方法，對應到真實人生的 Forest
+    const REAL = {
+      focus:['🌳','Forest 專注模式','目標時段一開始就種一棵樹，想滑手機時樹會提醒你'],
+      mute:['📵','關掉通知','專注時開勿擾，搭配 Forest 讓訊息等你種完樹'],
+      night:['🌙','睡前放下手機','睡前在 Forest 種一棵樹，不再滑到半夜'],
+      shield:['🛡️','專注護盾','每次想分心，看看那棵正在長大的樹'],
+      clear:['🎯','明確下一步','用 Forest 標籤記錄每段專注在做什麼'],
+    };
+    const used = Object.entries(G.blockedBy).sort((a,b)=>b[1]-a[1]);
+    const rows = used.map(([id,m])=>{const r=REAL[id];return `<div style="display:flex;gap:10px;align-items:flex-start;margin:8px 0"><span style="font-size:22px">${r[0]}</span><div><b>${r[1]}</b> 幫你守住 <b>${hrs(m)} 小時</b><br><small style="opacity:.9">真實人生 → ${r[2]}</small></div></div>`;}).join('');
+    const will = G.resisted ? `<div style="margin:8px 0;font-size:13px;opacity:.95">💪 另外你靠意志力硬撐了 ${G.resisted} 次。但真實人生的意志力會用完，讓 Forest 替你撐。</div>` : '';
+    html = `
+    <div class="res-h"><div class="em">🏆</div><h2>你守住了這週的 2027！</h2><p class="muted">${goal.icon} ${goal.name}</p></div>
+    ${stats}
+    <div class="card" style="background:var(--green);color:#fff">
+      <h3 style="font-size:19px">✨ 把這週的成功，複製到真實人生</h3>
+      <p style="font-size:14px;opacity:.95;margin-bottom:6px">遊戲裡你靠道具守住了時間。真實人生裡，<b>Forest 就是你的道具</b>。</p>
+      ${rows||'<p style="font-size:14px">這週你沒用到任何道具就守住了，真的很厲害！真實人生的分心更多，把這份專注交給 Forest 守著。</p>'}
+      ${will}
+      <div style="margin-top:12px">${dl('🌳 用 Forest 守護我的 2027')}</div>
+    </div>
+    ${forestCard}${projCard}${thiefCard}${tail}`;
+  } else {
+    // 失敗：守時間很難，Forest 幫你
+    const top3 = thieves.slice(0,3).map(([c,v])=>`<div style="display:flex;gap:10px;align-items:flex-start;margin:8px 0"><span style="font-size:20px">${CAT_NAME[c].split(' ')[0]}</span><div><b>${CAT_NAME[c].split(' ')[1]} 偷走 ${hrs(v)} 小時</b><br><small style="opacity:.92">${TIP[c].replace(/<\/?b>/g,'')}</small></div></div>`).join('');
+    html = `
+    <div class="res-h"><div class="em">😵</div><h2>為目標守護時間，真的很難</h2>
+      <p class="muted">這週被偷走了 <b style="color:var(--red)">${hrs(lostAll)} 小時</b>，目標只完成 ${pct}%。<br>不是你不夠努力，是分心無所不在。</p></div>
+    ${stats}
+    ${thiefCard}
+    <div class="card" style="background:var(--green);color:#fff">
+      <h3 style="font-size:19px">🌱 這些時間小偷，Forest 幫你擋</h3>
+      <p style="font-size:14px;opacity:.95">專心多久，樹就長多大；一離開去滑手機，樹就會枯萎。讓一棵樹幫你守住目標時間。</p>
+      ${top3}
+      <div style="margin-top:12px">${dl('🌳 讓 Forest 幫我守住時間')}</div>
+    </div>
+    ${projCard}${forestCard}${tail}`;
+  }
+  $('#resultWrap').innerHTML = html;
+  $('#scr-result').scrollTop = 0;
   setTimeout(()=>go('result'), 600);
   log('sys','🏁 這一週結束了！');
 }
